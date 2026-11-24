@@ -9,8 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="Gym">
 <meta name="theme-color" content="#ffffff">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-180.png">
-<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png?v=2">
+<link rel="icon" href="icon-192.png?v=2">
 <title>Gym</title>
 <style>
   :root{
@@ -89,14 +89,18 @@
   .c{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;
      font-size:15px;font-weight:600;color:#8c8c9a;border:0;background:none;padding:0;position:relative;transition:transform .12s}
   .c:active{transform:scale(.9)}
-  .c.g{background:var(--gym-soft);color:var(--gym-ink)}
-  .c.g.miss{background:var(--miss-soft);color:#e0566a}
-  .c.g.done{background:var(--gym);color:#fff}
-  .c.today{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--accent)}
-  .c.sel{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--ink)}
-  .c.today.sel{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--ink),0 0 0 6px var(--accent)}
-  .dots{position:absolute;bottom:-9px;left:0;right:0;display:flex;justify-content:center;gap:3px}
-  .dots i{width:5px;height:5px;border-radius:50%}
+  .c{background:#f6f6f9;color:#3a3a46}
+  .c.past{color:#a8a8b4}
+  .c.brk{background:#fbfbfc;color:#c2c2cc}
+  .c.today{background:#fff;color:var(--accent);box-shadow:inset 0 0 0 2px var(--accent)}
+  .c.sel{background:var(--ink);color:#fff;box-shadow:none}
+  .dots{position:absolute;bottom:-10px;left:0;right:0;display:flex;justify-content:center;gap:3px}
+  .dots i{width:6px;height:6px;border-radius:50%;box-sizing:border-box}
+  .calkey{display:flex;flex-wrap:wrap;gap:12px;font-size:12.5px;color:#5b5b68;margin-top:22px}
+  .calkey i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:0;box-sizing:border-box}
+  .sw{display:flex;flex-wrap:wrap;gap:10px}
+  .sw button{width:36px;height:36px;border-radius:50%;border:0;cursor:pointer}
+  .sw button.on{box-shadow:0 0 0 3px #fff,0 0 0 5px var(--ink)}
   .bar{height:8px;border-radius:8px;background:#f2f2f6;overflow:hidden;margin-top:24px}
   .bar div{height:100%;background:linear-gradient(90deg,var(--gym),#7be3ff);border-radius:8px;transition:width .4s}
   .hint{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.45}
@@ -239,6 +243,7 @@
       <button class="nav" id="next" aria-label="Next month">›</button>
     </div>
     <div class="grid" id="cal"></div>
+    <div class="calkey" id="calKey"></div>
     <div class="bar"><div id="mBar" style="width:0"></div></div>
     <div class="dayhead"><h2 id="selTitle"></h2><span id="selGym"></span></div>
     <div id="selList"></div>
@@ -303,6 +308,7 @@
       <div class="seg" id="fRepeat"><button data-r="once">Just once</button><button data-r="weekly">Every week</button></div>
     </div>
     <label class="field"><span id="fDateLbl">Date</span><input type="date" id="fDate"></label>
+    <label class="field" id="fUntilWrap"><span>Ends on (optional)</span><input type="date" id="fUntil"></label>
     <div class="two">
       <label class="field"><span>Start</span><input type="time" id="fStart"></label>
       <label class="field"><span>End</span><input type="time" id="fEnd"></label>
@@ -324,7 +330,12 @@ const START = new Date(2026, 10, 25);  // 25 Nov 2026
 const END   = new Date(2027, 10, 24);  // 24 Nov 2027
 const MAX_TABS = 5;
 
-const TYPES = { gym:{label:"Gym"}, uni:{label:"Uni"}, mosque:{label:"Mosque"}, travel:{label:"Travel"}, other:{label:"Other"} };
+const DEFAULT_TYPES = [
+  {id:"gym", label:"Gym", color:"#2fd39a"}, {id:"uni", label:"Uni", color:"#3aa8ff"},
+  {id:"mosque", label:"Mosque", color:"#9b7bff"}, {id:"travel", label:"Travel", color:"#ffa24c"},
+  {id:"other", label:"Other", color:"#ff5fa2"}
+];
+const PALETTE = ["#2fd39a","#3aa8ff","#9b7bff","#ffa24c","#ff5fa2","#ff5a3c","#1ec8c8","#ffc531","#8cc63f","#b08968","#5c6bc0","#e056fd","#9a9aa8","#16161d"];
 const BUILTIN = {
   today: {name:"Today",    color:"var(--accent)"},
   week:  {name:"Week",     color:"var(--uni)"},
@@ -387,6 +398,8 @@ let tabs    = load("gymTabs", null);
 let customs = load("gymCustom", {});
 let food    = load("gymFood", {goal:null, log:{}});
 let weights = load("gymWeight", []);
+let types   = load("gymTypes", null);
+let breaks  = load("gymBreaks", null);
 
 if (!Array.isArray(events)) events = DEFAULT_WEEK.map((e, i) => ({id:"d"+i, repeat:"weekly", day:e[0], type:e[1], start:e[2], end:e[3], title:e[4], note:e[5]}));
 { // older versions: rename the original gym sessions if untouched
@@ -402,10 +415,15 @@ tabs = tabs.filter(t => BUILTIN[t.id] || customs[t.id]);
 if (!food || typeof food !== "object") food = {goal:null, log:{}};
 food.log = food.log || {};
 if (!Array.isArray(weights)) weights = [];
+if (!Array.isArray(types)) types = JSON.parse(JSON.stringify(DEFAULT_TYPES));
+if (!types.some(t => t.id === "gym")) types.unshift({...DEFAULT_TYPES[0]});
+if (!types.some(t => t.id === "other")) types.push({...DEFAULT_TYPES[4]});
+if (!Array.isArray(breaks)) breaks = [{id:"b1", name:"Uni Christmas break", from:"2026-12-19", to:"2027-01-31", types:["uni","travel"]}];
 
 function saveAll(){
   store("gymDone", done); store("gymEvents", events); store("gymSkips", skips); store("gymPlan", plan);
   store("gymTabs", tabs); store("gymCustom", customs); store("gymFood", food); store("gymWeight", weights);
+  store("gymTypes", types); store("gymBreaks", breaks);
 }
 saveAll();
 
@@ -422,14 +440,22 @@ const fmt = t => { if(!t) return ""; let [h,m] = t.split(":").map(Number); const
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 const shortDate = d => `${DAY_NAMES[d.getDay()].slice(0,3)} ${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`;
 const num = n => Math.round(n).toLocaleString("en-GB");
+const typeOf = id => types.find(t => t.id === id) || types.find(t => t.id === "other") || DEFAULT_TYPES[4];
+function hexMix(hex, target, amt){ const h = hex.replace("#",""); const c = [0,2,4].map(i => parseInt(h.substr(i,2),16));
+  return "#" + c.map(v => Math.round(v + (target - v) * amt).toString(16).padStart(2,"0")).join(""); }
+const softOf = hex => hexMix(hex, 255, .84);
+const inkOf  = hex => hexMix(hex, 0, .38);
 const tabInfo = id => BUILTIN[id] || (customs[id] ? {name: customs[id].name, color: customs[id].color} : {name:"?", color:"#ccc"});
 
 // ================= Events / gym =================
+const breaksOn = k => breaks.filter(b => k >= b.from && k <= b.to);
 function eventsOn(d){
   const k = key(d), dow = d.getDay();
+  const off = new Set(breaksOn(k).flatMap(b => b.types));
   return events.filter(e =>
-    e.repeat === "once" ? e.date === k
-      : e.day === dow && (!e.from || k >= e.from) && !(skips[e.id] || []).includes(k)
+    (e.repeat === "once" ? e.date === k
+      : e.day === dow && (!e.from || k >= e.from) && (!e.until || k <= e.until) && !(skips[e.id] || []).includes(k))
+    && !(e.repeat === "weekly" && off.has(e.type))
   ).sort((a,b) => (a.start||"").localeCompare(b.start||""));
 }
 const weeklyOn = dow => events.filter(e => e.repeat === "weekly" && e.day === dow).sort((a,b) => (a.start||"").localeCompare(b.start||""));
@@ -456,9 +482,15 @@ function stats(){
 
 function eventHTML(e, dateKey){
   const time = e.start ? fmt(e.start) + (e.end ? " – " + fmt(e.end) : "") : "All day";
-  return `<div class="ev ${e.type}" data-id="${e.id}" data-date="${dateKey||""}">
+  const c = typeOf(e.type).color;
+  let rep = "";
+  if (e.repeat === "weekly") {
+    const f = e.from ? shortDate(parseKey(e.from)).slice(4) : "", u = e.until ? shortDate(parseKey(e.until)).slice(4) : "";
+    rep = !dateKey && (f || u) ? (f && u ? `${f} – ${u}` : f ? `from ${f}` : `until ${u}`) : "weekly";
+  }
+  return `<div class="ev" data-id="${e.id}" data-date="${dateKey||""}">
     <div class="tm">${e.start ? fmt(e.start) : ""}</div>
-    <div class="card">${e.repeat==="weekly" ? '<span class="rep">weekly</span>' : ""}<b>${esc(e.title)}</b>
+    <div class="card" style="background:${softOf(c)}">${rep ? `<span class="rep">${rep}</span>` : ""}<b style="color:${inkOf(c)}">${esc(e.title)}</b>
       <span>${time}${e.note ? " · " + esc(e.note) : ""}</span></div></div>`;
 }
 function bindEvents(container){
@@ -512,7 +544,7 @@ let selDay = new Date().getDay();
 function renderWeek(){
   const order = [1,2,3,4,5,6,0], letters = {1:"M",2:"T",3:"W",4:"T",5:"F",6:"S",0:"S"};
   const td = new Date().getDay();
-  $("days").innerHTML = order.map(d => `<button class="day ${weeklyOn(d).some(e=>e.type==="gym")?"g":""} ${d===selDay?"sel":""} ${d===td?"today":""}" data-d="${d}">${letters[d]}</button>`).join("");
+  $("days").innerHTML = order.map(d => `<button class="day ${d===selDay?"sel":""} ${d===td?"today":""}" data-d="${d}">${letters[d]}</button>`).join("");
   $("days").querySelectorAll("button").forEach(b => b.onclick = () => { selDay = +b.dataset.d; renderWeek(); });
   const ev = weeklyOn(selDay);
   $("dayList").innerHTML = `<h2 style="margin-top:0">Every ${DAY_NAMES[selDay]}</h2>`
@@ -520,7 +552,7 @@ function renderWeek(){
     + `<button class="addline" id="addWeekly">+ Add to every ${DAY_NAMES[selDay]}</button>`;
   bindEvents($("dayList"));
   $("addWeekly").onclick = () => openSheet({weeklyDay: selDay});
-  $("legend").innerHTML = Object.keys(TYPES).map(t => `<span><i style="background:var(--${t})"></i>${TYPES[t].label}</span>`).join("");
+  $("legend").innerHTML = types.map(t => `<span><i style="background:${t.color}"></i>${esc(t.label)}</span>`).join("");
 }
 
 // ================= Calendar =================
@@ -536,17 +568,25 @@ function renderCal(){
   let planned = 0, got = 0;
   for (let d = 1; d <= days; d++) {
     const dt = new Date(y, m, d), k = key(dt), cls = ["c"];
-    if (isGym(dt)) {
-      planned++; cls.push("g");
-      if (done[k]) { cls.push("done"); got++; } else if (dt < t) cls.push("miss");
-    }
+    const gym = isGym(dt);
+    if (gym) { planned++; if (done[k]) got++; }
+    if (dt < t) cls.push("past");
+    if (breaksOn(k).length) cls.push("brk");
     if (+dt === +t) cls.push("today");
     if (k === selKey) cls.push("sel");
-    const types = [...new Set(eventsOn(dt).filter(e => e.repeat === "once").map(e => e.type))].slice(0,3);
-    const dots = types.length ? `<span class="dots">${types.map(tp => `<i style="background:var(--${tp})"></i>`).join("")}</span>` : "";
+    const present = new Set(eventsOn(dt).map(e => e.type));
+    const dts = types.filter(tp => present.has(tp.id)).slice(0, 5);
+    const dots = dts.length ? `<span class="dots">${dts.map(tp => tp.id === "gym" && gym && !done[k]
+        ? `<i style="border:1.5px solid ${tp.color}"></i>` : `<i style="background:${tp.color}"></i>`).join("")}</span>` : "";
     html += `<button class="${cls.join(" ")}" data-k="${k}">${d}${dots}</button>`;
   }
   $("cal").innerHTML = html;
+  const shown = new Set(); for (let d = 1; d <= days; d++) eventsOn(new Date(y, m, d)).forEach(e => shown.add(e.type));
+  const gc = typeOf("gym").color;
+  $("calKey").innerHTML = types.filter(tp => shown.has(tp.id)).map(tp => tp.id === "gym"
+      ? `<span><i style="background:${gc}"></i>Gym done</span><span><i style="border:1.5px solid ${gc}"></i>Gym to do</span>`
+      : `<span><i style="background:${tp.color}"></i>${esc(tp.label)}</span>`).join("")
+    + (breaks.some(b => b.from <= key(new Date(y, m, days)) && b.to >= key(new Date(y, m, 1))) ? `<span><i style="background:#ececf1"></i>Break</span>` : "");
   $("cal").querySelectorAll(".c").forEach(b => b.onclick = () => { selKey = b.dataset.k; renderCal(); });
   $("mCount").textContent = planned ? `${got} of ${planned} gym sessions` : "";
   $("mBar").style.width = planned ? (got / planned * 100) + "%" : "0";
@@ -554,7 +594,8 @@ function renderCal(){
   $("next").disabled = (y > END.getFullYear() || (y === END.getFullYear() && m >= END.getMonth()));
 
   const sd = parseKey(selKey), sev = eventsOn(sd);
-  $("selTitle").textContent = shortDate(sd);
+  const bk = breaksOn(selKey);
+  $("selTitle").textContent = shortDate(sd) + (bk.length ? " · " + bk.map(b => b.name).join(", ") : "");
   if (isGym(sd) && sd <= t) {
     $("selGym").innerHTML = `<button class="pill gymbtn ${done[selKey]?"done":""}" id="selGymBtn">${done[selKey] ? "✓ Gym done" : "Mark gym done"}</button>`;
     $("selGymBtn").onclick = () => toggle(selKey);
@@ -811,6 +852,13 @@ function openSettings(){
         <label class="switch"><input type="checkbox" data-on="${i}" ${t.on ? "checked" : ""} ${t.on && onCount === 1 ? "disabled" : ""}><span></span></label>
       </div>`; }).join("")}
     <div class="err" id="sErr" style="margin-top:8px"></div>
+    <h2>Event types &amp; colours</h2>
+    ${types.map(t => `<div class="trow" data-type="${t.id}" style="cursor:pointer"><span class="dot" style="background:${t.color}"></span><span class="nm">${esc(t.label)}</span><span style="color:var(--muted)">Edit ›</span></div>`).join("")}
+    <button class="addline" id="addType" style="margin-top:12px">+ New type</button>
+    <h2>Breaks &amp; holidays</h2>
+    <p class="hint" style="margin-top:0">Hide chosen weekly events between two dates, e.g. no uni over Christmas.</p>
+    ${breaks.map(b => `<div class="trow" data-break="${b.id}" style="cursor:pointer"><span class="dot" style="background:#ececf1"></span><span class="nm">${esc(b.name)}<br><span style="font-size:13px;color:var(--muted);font-weight:500">${shortDate(parseKey(b.from))} – ${shortDate(parseKey(b.to))}</span></span><span style="color:var(--muted)">Edit ›</span></div>`).join("")}
+    <button class="addline" id="addBreak" style="margin-top:12px">+ Add a break</button>
     <h2>New section</h2>
     <div class="newrow"><input id="newName" placeholder="e.g. Shopping list, Goals" maxlength="16"><button class="pill" id="newAdd">Add</button></div>
     <p class="hint">New sections are simple tick lists. Tap a section's name to rename it, or ✕ to delete it.</p>
@@ -847,15 +895,85 @@ function openSettings(){
     afterTabs();
     if (!canShow) $("sErr").textContent = `"${name}" added — turn another tab off to show it.`;
   };
+  sh.querySelectorAll("[data-type]").forEach(r => r.onclick = () => editType(types.find(t => t.id === r.dataset.type), openSettings));
+  $("addType").onclick = () => editType(null, openSettings);
+  sh.querySelectorAll("[data-break]").forEach(r => r.onclick = () => editBreak(breaks.find(b => b.id === r.dataset.break)));
+  $("addBreak").onclick = () => editBreak(null);
   $("backupBtn").onclick = backup;
   $("restoreBtn").onclick = () => $("restoreFile").click();
   $("restoreFile").onchange = restore;
 }
 function afterTabs(){ saveAll(); renderNav(); openSettings(); }
 
+// ================= Types & breaks =================
+function editType(t, after){
+  const isNew = !t;
+  let col = t ? t.color : PALETTE.find(c => !types.some(x => x.color === c)) || PALETTE[0];
+  const used = t ? events.filter(e => e.type === t.id).length : 0;
+  const draw = () => {
+    sheet2(`<h3>${isNew ? "New event type" : "Edit type"}</h3>
+      <label class="field"><span>Name</span><input id="tyName" value="${esc(t ? t.label : "")}" maxlength="18" placeholder="e.g. Work, Family, Exams"></label>
+      <div class="field"><span>Colour</span><div class="sw">${PALETTE.map(c => `<button data-c="${c}" class="${c === col ? "on" : ""}" style="background:${c}"></button>`).join("")}</div></div>
+      ${t && t.id === "gym" ? `<p class="hint">Events of this type count as gym sessions in your tracker.</p>` : ""}
+      <div class="err" id="tyErr"></div>
+      <div class="actions">${!isNew && !["gym","other"].includes(t.id) ? `<button class="btn danger" id="tyDel">Delete</button>` : ""}
+        <button class="btn ghost" id="tyCancel">Cancel</button><button class="btn primary" id="tySave">Save</button></div>`);
+    $("sheet2").querySelectorAll("[data-c]").forEach(b => b.onclick = () => { const n = $("tyName").value; col = b.dataset.c; draw(); $("tyName").value = n; });
+    $("tyCancel").onclick = () => { if (after === openSettings) openSettings(); else close2(); };
+    $("tySave").onclick = () => {
+      const label = $("tyName").value.trim();
+      if (!label) { $("tyErr").textContent = "Give it a name."; return; }
+      let res;
+      if (isNew) { res = {id: "t_" + uid(), label, color: col}; types.push(res); }
+      else { t.label = label; t.color = col; res = t; }
+      saveAll(); renderAll();
+      if (after === openSettings) openSettings(); else { close2(); after && after(res); }
+    };
+    if ($("tyDel")) $("tyDel").onclick = () => {
+      if (!confirm(used ? `${used} event(s) use "${t.label}". They'll become "Other". Delete?` : `Delete "${t.label}"?`)) return;
+      events.forEach(e => { if (e.type === t.id) e.type = "other"; });
+      breaks.forEach(b => b.types = b.types.filter(x => x !== t.id));
+      types = types.filter(x => x.id !== t.id);
+      saveAll(); renderAll(); openSettings();
+    };
+  };
+  draw();
+}
+function editBreak(b){
+  const isNew = !b;
+  let sel = new Set(b ? b.types : ["uni"]);
+  const draw = (vals) => {
+    sheet2(`<h3>${isNew ? "Add a break" : "Edit break"}</h3>
+      <label class="field"><span>Name</span><input id="bkName" value="${esc(vals.name)}" maxlength="30" placeholder="e.g. Easter holidays"></label>
+      <div class="two">
+        <label class="field"><span>From</span><input type="date" id="bkFrom" value="${vals.from}"></label>
+        <label class="field"><span>To (last day off)</span><input type="date" id="bkTo" value="${vals.to}"></label>
+      </div>
+      <div class="field"><span>Hide these weekly events</span><div class="chips">${types.map(t => `<button class="chip ${sel.has(t.id) ? "on" : ""}" data-bt="${t.id}" style="${sel.has(t.id) ? `background:${t.color}` : ""}"><i style="background:${sel.has(t.id) ? "#fff" : t.color}"></i>${esc(t.label)}</button>`).join("")}</div></div>
+      <p class="hint" style="margin-top:-4px">One-off events you add on those days still show.</p>
+      <div class="err" id="bkErr"></div>
+      <div class="actions">${isNew ? "" : `<button class="btn danger" id="bkDel">Delete</button>`}<button class="btn ghost" id="bkCancel">Cancel</button><button class="btn primary" id="bkSave">Save</button></div>`);
+    const cur = () => ({name: $("bkName").value, from: $("bkFrom").value, to: $("bkTo").value});
+    $("sheet2").querySelectorAll("[data-bt]").forEach(c => c.onclick = () => { const v = cur(); sel.has(c.dataset.bt) ? sel.delete(c.dataset.bt) : sel.add(c.dataset.bt); draw(v); });
+    $("bkCancel").onclick = openSettings;
+    $("bkSave").onclick = () => {
+      const v = cur();
+      if (!v.name.trim()) { $("bkErr").textContent = "Give it a name."; return; }
+      if (!v.from || !v.to) { $("bkErr").textContent = "Pick both dates."; return; }
+      if (v.to < v.from) { $("bkErr").textContent = "The end date needs to be after the start."; return; }
+      if (!sel.size) { $("bkErr").textContent = "Choose at least one type to hide."; return; }
+      const nb = {id: b ? b.id : "b_" + uid(), name: v.name.trim(), from: v.from, to: v.to, types: [...sel]};
+      if (isNew) breaks.push(nb); else breaks = breaks.map(x => x.id === nb.id ? nb : x);
+      saveAll(); renderAll(); openSettings();
+    };
+    if ($("bkDel")) $("bkDel").onclick = () => { breaks = breaks.filter(x => x.id !== b.id); saveAll(); renderAll(); openSettings(); };
+  };
+  draw(b ? {name: b.name, from: b.from, to: b.to} : {name: "", from: key(today()), to: key(addDays(today(), 7))});
+}
+
 // ================= Backup =================
 async function backup(){
-  const data = JSON.stringify({app:"gym", version:3, done, events, skips, plan, tabs, customs, food, weights});
+  const data = JSON.stringify({app:"gym", version:4, done, events, skips, plan, tabs, customs, food, weights, types, breaks});
   const name = `gym-backup-${key(today())}.json`;
   const file = new File([data], name, {type:"application/json"});
   try { if (navigator.canShare && navigator.canShare({files:[file]})) { await navigator.share({files:[file], title:"Gym backup"}); return; } }
@@ -872,6 +990,7 @@ async function restore(e){
     done = d.done || {}; events = d.events; skips = d.skips || {};
     if (d.plan) plan = d.plan; if (d.tabs) tabs = d.tabs; if (d.customs) customs = d.customs;
     if (d.food) food = d.food; if (d.weights) weights = d.weights;
+    if (d.types) types = d.types; if (d.breaks) breaks = d.breaks;
     saveAll(); close2(); renderNav(); renderAll(); renderPlan(); alert("Backup restored.");
   } catch(_) { alert("That file isn't a gym backup."); }
   e.target.value = "";
@@ -881,7 +1000,7 @@ async function restore(e){
 let form = {};
 function nextDateFor(dow){ let d = today(); while (d.getDay() !== dow) d = addDays(d, 1); return key(d); }
 function openSheet({ev = null, dateKey = null, weeklyDay = null} = {}){
-  form = ev ? {...ev} : {type:"other", repeat: weeklyDay !== null ? "weekly" : "once", start:"", end:"", title:"", note:""};
+  form = ev ? {...ev} : {type:"other", until:"", repeat: weeklyDay !== null ? "weekly" : "once", start:"", end:"", title:"", note:""};
   form.editing = ev ? ev.id : null;
   form.contextDate = dateKey;
   const dk = ev ? (ev.repeat === "once" ? ev.date : (ev.from || dateKey || nextDateFor(ev.day)))
@@ -889,16 +1008,18 @@ function openSheet({ev = null, dateKey = null, weeklyDay = null} = {}){
   $("fHead").textContent = ev ? "Edit event" : "Add event";
   $("fName").value = form.title; $("fNote").value = form.note || "";
   $("fStart").value = form.start || ""; $("fEnd").value = form.end || "";
-  $("fDate").value = dk; $("fErr").textContent = "";
+  $("fDate").value = dk; $("fUntil").value = form.until || ""; $("fErr").textContent = "";
   drawTypes(); drawRepeat(); drawActions();
   $("sheetBg").classList.add("on"); document.body.classList.add("lock");
   if (!ev) setTimeout(() => $("fName").focus(), 250);
 }
 function closeSheet(){ $("sheetBg").classList.remove("on"); document.body.classList.remove("lock"); }
 function drawTypes(){
-  $("fType").innerHTML = Object.keys(TYPES).map(t =>
-    `<button class="chip ${form.type===t?"on":""}" data-t="${t}" style="${form.type===t?`background:var(--${t})`:""}"><i style="background:${form.type===t?"#fff":`var(--${t})`}"></i>${TYPES[t].label}</button>`).join("");
-  $("fType").querySelectorAll(".chip").forEach(b => b.onclick = () => { form.type = b.dataset.t; drawTypes(); });
+  $("fType").innerHTML = types.map(t =>
+    `<button class="chip ${form.type===t.id?"on":""}" data-t="${t.id}" style="${form.type===t.id?`background:${t.color}`:""}"><i style="background:${form.type===t.id?"#fff":t.color}"></i>${esc(t.label)}</button>`).join("")
+    + `<button class="chip" id="newTypeChip">+ New</button>`;
+  $("fType").querySelectorAll(".chip[data-t]").forEach(b => b.onclick = () => { form.type = b.dataset.t; drawTypes(); });
+  $("newTypeChip").onclick = () => editType(null, t => { form.type = t.id; drawTypes(); });
 }
 function drawRepeat(){
   $("fRepeat").querySelectorAll("button").forEach(b => {
@@ -906,6 +1027,7 @@ function drawRepeat(){
     b.onclick = () => { form.repeat = b.dataset.r; drawRepeat(); };
   });
   $("fDateLbl").textContent = form.repeat === "weekly" ? "Starting from (sets the weekday)" : "Date";
+  $("fUntilWrap").style.display = form.repeat === "weekly" ? "" : "none";
 }
 function drawActions(){
   let html = "";
@@ -933,12 +1055,15 @@ function saveForm(){
   if (!title) { $("fErr").textContent = "Give it a name."; return; }
   if (!date) { $("fErr").textContent = "Pick a date."; return; }
   if (start && end && end <= start) { $("fErr").textContent = "End time needs to be after the start."; return; }
+  const until = $("fUntil").value;
+  if (form.repeat === "weekly" && until && until < date) { $("fErr").textContent = "The end date needs to be after the start date."; return; }
   const ev = { id: form.editing || uid(), type: form.type, title, note: $("fNote").value.trim(), start, end, repeat: form.repeat };
   if (form.repeat === "once") ev.date = date;
   else {
     ev.day = parseKey(date).getDay();
     const orig = events.find(e => e.id === form.editing);
     if (!(orig && orig.repeat === "weekly" && !orig.from)) ev.from = date;
+    if (until) ev.until = until;
   }
   if (form.editing) events = events.map(e => e.id === form.editing ? ev : e); else events.push(ev);
   saveAll(); closeSheet();
