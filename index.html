@@ -181,8 +181,8 @@
 
 <script>
 // ---------- Data ----------
-const START = new Date(2026, 11, 1);   // 1 Dec 2026
-const END   = new Date(2027, 10, 30);  // 30 Nov 2027
+const START = new Date(2026, 10, 25);  // 25 Nov 2026
+const END   = new Date(2027, 10, 24);  // 24 Nov 2027
 const GYM_DAYS = [2, 3, 5, 0];         // Tue, Wed, Fri, Sun (JS: 0 = Sunday)
 
 const WORKOUTS = {
@@ -253,9 +253,9 @@ function renderToday(){
     hero.innerHTML = `<button class="big ${d?"done":""}" id="bigBtn" aria-label="Mark done">${d?"✓":"○"}</button>
       <div><div class="t">${d ? "Nice work! 💪" : w.name + " · 10am"}</div><div class="d">${d ? "Session logged" : "Tap the circle when you're done"}</div></div>`;
     $("bigBtn").onclick = () => { toggle(k); };
-  } else if (GYM_DAYS.includes(dow) && t < START) {
+  } else if (t < START) {
     hero.className = "hero";
-    hero.innerHTML = `<div class="big">→</div><div><div class="t">Starts 1 December</div><div class="d">Your first session is Tuesday, 10am</div></div>`;
+    hero.innerHTML = `<div class="big">→</div><div><div class="t">Starts ${START.getDate()} ${MONTHS[START.getMonth()]}</div><div class="d">Your first session is ${DAY_NAMES[START.getDay()]}, 10am</div></div>`;
   } else {
     hero.className = "hero rest";
     const next = nextGym();
