@@ -21,6 +21,7 @@
     --mosque:#9b7bff; --mosque-soft:#eee8ff; --mosque-ink:#6a4ae0;
     --travel:#ffa24c; --travel-soft:#fff0e0; --travel-ink:#d4741c;
     --other:#ff5fa2;  --other-soft:#ffe6f1;  --other-ink:#d63a7d;
+    --teal:#1ec8c8; --yellow:#ffc531;
     --miss-soft:#ffe3e6;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -29,12 +30,14 @@
   body{padding:env(safe-area-inset-top) 0 calc(90px + env(safe-area-inset-bottom))}
   body.lock{overflow:hidden}
   main{max-width:520px;margin:0 auto;padding:22px 20px 10px}
+  .head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
   h1{font-size:30px;letter-spacing:-.6px;margin:6px 0 2px;font-weight:750}
   .sub{color:var(--muted);font-size:15px;margin:0 0 22px}
   h2{font-size:13px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin:26px 0 12px;font-weight:650}
   section{display:none} section.on{display:block;animation:fade .25s ease}
   @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
   button{font-family:inherit}
+  .gear{width:40px;height:40px;border-radius:50%;border:0;background:#f6f6f9;font-size:19px;color:#5b5b68;cursor:pointer;flex:none;margin-top:4px}
 
   /* Today */
   .hero{display:flex;align-items:center;gap:18px;padding:18px;border-radius:24px;background:var(--gym-soft)}
@@ -76,13 +79,13 @@
   .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:0}
 
   /* Calendar */
-  .mhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-  .mhead .mt{font-size:22px;font-weight:750;letter-spacing:-.4px}
+  .mhead{display:flex;align-items:center;justify-content:space-between;margin:10px 0 6px}
+  .mhead .mt{font-size:20px;font-weight:750;letter-spacing:-.4px}
   .mhead .mc{font-size:14px;color:var(--muted);margin-top:2px}
   .nav{width:40px;height:40px;border-radius:50%;border:0;background:#f6f6f9;font-size:18px;cursor:pointer;color:var(--ink)}
   .nav:disabled{opacity:.3}
   .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:14px 0;margin-top:14px;justify-items:center}
-  .wd{font-size:12px;color:var(--muted);font-weight:600;padding-bottom:0}
+  .wd{font-size:12px;color:var(--muted);font-weight:600}
   .c{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;
      font-size:15px;font-weight:600;color:#8c8c9a;border:0;background:none;padding:0;position:relative;transition:transform .12s}
   .c:active{transform:scale(.9)}
@@ -96,24 +99,51 @@
   .dots i{width:5px;height:5px;border-radius:50%}
   .bar{height:8px;border-radius:8px;background:#f2f2f6;overflow:hidden;margin-top:24px}
   .bar div{height:100%;background:linear-gradient(90deg,var(--gym),#7be3ff);border-radius:8px;transition:width .4s}
-  .hint{font-size:13px;color:var(--muted);margin-top:10px}
+  .hint{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.45}
   .dayhead{display:flex;align-items:center;justify-content:space-between;margin:26px 0 12px}
   .dayhead h2{margin:0}
-  .pill{border:0;border-radius:20px;padding:8px 14px;font-size:14px;font-weight:650;cursor:pointer}
+  .pill{border:0;border-radius:20px;padding:8px 14px;font-size:14px;font-weight:650;cursor:pointer;background:#f2f2f6;color:var(--ink)}
+  .pill.sm{padding:6px 12px;font-size:13px}
   .pill.gymbtn{background:var(--gym-soft);color:var(--gym-ink)}
   .pill.gymbtn.done{background:var(--gym);color:#fff}
 
   /* Plan */
   .w{border-radius:22px;padding:16px 18px;margin-bottom:12px;background:#fafafc}
-  .w .top{display:flex;justify-content:space-between;align-items:baseline}
+  .w .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
   .w .top b{font-size:17px}
-  .w .top span{font-size:13px;color:var(--muted)}
+  .w .top .meta{font-size:13px;color:var(--muted)}
   .w ul{margin:10px 0 0;padding-left:18px;font-size:14.5px;line-height:1.55;color:#3a3a46}
   .w .fin{margin-top:8px;font-size:13.5px;color:var(--gym-ink);font-weight:600}
   .tag{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}
   .tips li{margin-bottom:6px}
-  .row2{display:flex;gap:10px;margin-top:12px}
-  .row2 .pill{flex:1;background:#f2f2f6;color:var(--ink);padding:12px}
+
+  /* Food */
+  .ringwrap{display:flex;align-items:center;gap:22px;padding:18px;border-radius:24px;background:var(--travel-soft);cursor:pointer}
+  .ring{position:relative;width:128px;height:128px;flex:none}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .ring .mid b{font-size:26px;letter-spacing:-.6px}
+  .ring .mid span{font-size:12px;color:#7a6a5a}
+  .ringinfo .t{font-size:18px;font-weight:700}
+  .ringinfo .d{font-size:14px;color:#5b5b68;margin-top:4px;line-height:1.4}
+  .datenav{display:flex;align-items:center;justify-content:space-between;margin:0 0 16px}
+  .datenav b{font-size:16px}
+  .fi{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px;border-radius:18px;background:#fafafc;margin-bottom:8px;cursor:pointer}
+  .fi b{font-size:15px;font-weight:650} .fi span{font-size:13px;color:var(--muted)}
+  .fi .k{font-weight:700;color:var(--travel-ink);white-space:nowrap}
+  .bars{display:flex;align-items:flex-end;justify-content:space-between;height:110px;gap:8px;position:relative;margin-top:6px}
+  .bars .b{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+  .bars .b div{width:100%;max-width:26px;border-radius:9px;background:var(--travel-soft)}
+  .bars .b div.ok{background:var(--travel)} .bars .b div.over{background:var(--accent)}
+  .bars .b span{font-size:11px;color:var(--muted);font-weight:600}
+  .goalline{position:absolute;left:0;right:0;border-top:1.5px dashed #ffb98a}
+
+  /* Weight + custom */
+  .chart{width:100%;height:150px;display:block}
+  .chk{display:flex;align-items:center;gap:14px;padding:12px 4px;border-bottom:1px solid var(--line)}
+  .chk .box{width:28px;height:28px;border-radius:50%;border:0;flex:none;cursor:pointer;color:#fff;font-weight:800;font-size:14px}
+  .chk .txt{flex:1;font-size:15.5px;cursor:pointer}
+  .chk.done .txt{color:var(--muted);text-decoration:line-through}
 
   /* Floating add button */
   .fab{position:fixed;right:20px;bottom:calc(82px + env(safe-area-inset-bottom));width:58px;height:58px;border-radius:50%;border:0;
@@ -121,7 +151,7 @@
     box-shadow:0 10px 24px rgba(255,90,60,.35);z-index:5;transition:transform .15s}
   .fab:active{transform:scale(.9)}
 
-  /* Sheet */
+  /* Sheets */
   .sheet-bg{position:fixed;inset:0;background:rgba(20,20,30,.25);display:none;align-items:flex-end;justify-content:center;z-index:20}
   .sheet-bg.on{display:flex;animation:bgin .2s ease}
   @keyframes bgin{from{background:rgba(20,20,30,0)}}
@@ -131,9 +161,11 @@
   .grab{width:40px;height:5px;border-radius:5px;background:#e4e4ec;margin:4px auto 14px}
   .sheet h3{margin:0 0 16px;font-size:21px;letter-spacing:-.3px}
   .field{display:block;margin-bottom:14px}
-  .field span{display:block;font-size:12px;font-weight:650;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-  .field input{width:100%;border:0;background:#f5f5f8;border-radius:14px;padding:13px 14px;font-size:16px;color:var(--ink);font-family:inherit;-webkit-appearance:none;appearance:none;min-height:48px}
-  .field input:focus{outline:2px solid var(--ink)}
+  .field > span{display:block;font-size:12px;font-weight:650;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+  .field input,.field select,.field textarea{width:100%;border:0;background:#f5f5f8;border-radius:14px;padding:13px 14px;font-size:16px;color:var(--ink);
+    font-family:inherit;-webkit-appearance:none;appearance:none;min-height:48px}
+  .field textarea{min-height:150px;line-height:1.45;resize:vertical}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--ink)}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .chips{display:flex;flex-wrap:wrap;gap:8px}
   .chip{border:0;border-radius:20px;padding:9px 14px;font-size:14px;font-weight:650;cursor:pointer;background:#f5f5f8;color:#5b5b68;display:flex;align-items:center;gap:7px}
@@ -143,50 +175,64 @@
   .seg button{flex:1;border:0;background:none;padding:10px;border-radius:11px;font-size:15px;font-weight:650;color:#5b5b68;cursor:pointer}
   .seg button.on{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.08)}
   .actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
-  .btn{flex:1;border:0;border-radius:16px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;min-width:120px}
+  .btn{flex:1;border:0;border-radius:16px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;min-width:110px}
   .btn.primary{background:var(--ink);color:#fff}
   .btn.ghost{background:#f5f5f8;color:var(--ink)}
   .btn.danger{background:#fff0f1;color:#e0566a}
   .err{color:#e0566a;font-size:14px;margin-top:-4px;min-height:18px}
+  .recent{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px}
+  .recent button{flex:none;border:0;border-radius:16px;background:var(--travel-soft);color:var(--travel-ink);padding:8px 12px;font-size:13.5px;font-weight:650;cursor:pointer}
+
+  /* Settings */
+  .trow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .trow .dot{width:14px;height:14px;border-radius:50%;flex:none}
+  .trow .nm{flex:1;font-size:16px;font-weight:600}
+  .ib{width:34px;height:34px;border-radius:50%;border:0;background:#f5f5f8;cursor:pointer;font-size:15px;color:#5b5b68}
+  .ib:disabled{opacity:.3}
+  .switch{position:relative;width:50px;height:30px;flex:none}
+  .switch input{opacity:0;width:0;height:0}
+  .switch span{position:absolute;inset:0;border-radius:30px;background:#e4e4ec;transition:.2s;cursor:pointer}
+  .switch span::after{content:"";position:absolute;width:24px;height:24px;left:3px;top:3px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:.2s}
+  .switch input:checked + span{background:var(--gym)}
+  .switch input:checked + span::after{transform:translateX(20px)}
+  .switch input:disabled + span{opacity:.5}
+  .newrow{display:flex;gap:8px;margin-top:12px}
+  .newrow input{flex:1;border:0;background:#f5f5f8;border-radius:14px;padding:12px 14px;font-size:16px;font-family:inherit}
 
   /* Tab bar */
   nav.tabs{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.92);z-index:6;
     -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-top:1px solid var(--line);
-    display:flex;justify-content:space-around;padding:8px 8px calc(8px + env(safe-area-inset-bottom))}
-  nav.tabs button{border:0;background:none;font-size:11px;font-weight:600;color:var(--muted);
-    display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px 14px;cursor:pointer}
+    display:flex;justify-content:space-around;padding:8px 4px calc(8px + env(safe-area-inset-bottom))}
+  nav.tabs button{border:0;background:none;font-size:11px;font-weight:600;color:var(--muted);flex:1;min-width:0;
+    display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px 2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   nav.tabs button i{width:26px;height:26px;border-radius:50%;background:#f2f2f6;display:block;transition:background .2s}
   nav.tabs button.on{color:var(--ink)}
-  nav.tabs button.on i{background:var(--accent)}
-  nav.tabs button:nth-child(2).on i{background:var(--uni)}
-  nav.tabs button:nth-child(3).on i{background:var(--gym)}
-  nav.tabs button:nth-child(4).on i{background:var(--mosque)}
 </style>
 </head>
 <body>
 <main>
-  <section id="today" class="on">
-    <h1 id="hello">Hey</h1>
-    <p class="sub" id="todayDate"></p>
+  <section id="today">
+    <div class="head"><div><h1 id="hello">Hey</h1><p class="sub" id="todayDate"></p></div><button class="gear" aria-label="Settings">⚙︎</button></div>
     <div class="hero" id="hero"></div>
     <div class="stats">
       <div class="stat"><b id="sDone">0</b><span>done</span></div>
       <div class="stat"><b id="sStreak">0</b><span>streak</span></div>
       <div class="stat"><b id="sRate">0%</b><span>on track</span></div>
     </div>
+    <div id="todayFood"></div>
     <h2>Today</h2>
     <div id="todayList"></div>
   </section>
 
   <section id="week">
-    <h1>Week</h1>
-    <p class="sub">Your regular weekly timetable · tap to edit</p>
+    <div class="head"><div><h1>Week</h1><p class="sub">Your regular weekly timetable · tap to edit</p></div><button class="gear" aria-label="Settings">⚙︎</button></div>
     <div class="days" id="days"></div>
     <div id="dayList"></div>
     <div class="legend" id="legend"></div>
   </section>
 
   <section id="track">
+    <div class="head"><h1>Calendar</h1><button class="gear" aria-label="Settings">⚙︎</button></div>
     <div class="mhead">
       <button class="nav" id="prev" aria-label="Previous month">‹</button>
       <div style="text-align:center"><div class="mt" id="mTitle"></div><div class="mc" id="mCount"></div></div>
@@ -204,35 +250,49 @@
   </section>
 
   <section id="plan">
-    <h1>Plan</h1>
-    <p class="sub">Fat loss + stronger legs · 10:00–11:15</p>
+    <div class="head"><div><h1>Plan</h1><p class="sub" id="planSub"></p></div><button class="gear" aria-label="Settings">⚙︎</button></div>
     <div id="workouts"></div>
-    <h2>Arms, belly, face &amp; thighs</h2>
-    <div class="w"><ul class="tips">
-      <li>You can't burn fat from one spot. Arms, belly, face and thighs slim down as your overall body fat drops.</li>
-      <li>Leg weights + StairMaster build firm muscle in your thighs and glutes while the fat comes off, so legs end up slimmer and stronger, not bulky.</li>
-      <li>Squats, lunges and step-ups: keep your knees in line with your toes and push through your heels.</li>
-      <li>The arm and shoulder work tones the muscle underneath, so arms look firmer as fat comes off.</li>
-      <li>Food matters more than the gym: protein and veg every meal, fewer sugary drinks, snacks and takeaways.</li>
-      <li>Plenty of water and less salty food reduces face puffiness quickly.</li>
-      <li>8,000–10,000 steps a day. Walking to the station counts.</li>
-      <li>Sleep 7–9 hours. Poor sleep makes cravings worse.</li>
-      <li>Weigh or measure your waist once a week, same day and time.</li>
-    </ul></div>
-    <h2>Backup</h2>
-    <div class="w">
-      <div style="font-size:14.5px;color:#3a3a46;line-height:1.5">Everything is saved on this phone. Save a backup now and then so you never lose your ticks and events.</div>
-      <div class="row2">
-        <button class="pill" id="backupBtn">Save backup</button>
-        <button class="pill" id="restoreBtn">Restore</button>
-      </div>
-      <input type="file" id="restoreFile" accept=".json,application/json" hidden>
+    <button class="addline" id="addWorkout">+ Add workout</button>
+    <div class="dayhead"><h2 id="tipsTitle"></h2><button class="pill sm" id="editTips">Edit</button></div>
+    <div class="w"><ul class="tips" id="tips"></ul></div>
+  </section>
+
+  <section id="food">
+    <div class="head"><div><h1>Food</h1><p class="sub">Track what you eat</p></div><button class="gear" aria-label="Settings">⚙︎</button></div>
+    <div class="datenav"><button class="nav" id="fPrev">‹</button><b id="fDay"></b><button class="nav" id="fNext">›</button></div>
+    <div class="ringwrap" id="ringwrap"></div>
+    <div class="stats">
+      <div class="stat"><b id="fEaten">0</b><span>eaten</span></div>
+      <div class="stat"><b id="fProtein">0g</b><span>protein</span></div>
+      <div class="stat"><b id="fAvg">–</b><span>7-day avg</span></div>
     </div>
+    <h2>Meals &amp; snacks</h2>
+    <div id="foodList"></div>
+    <h2>Last 7 days</h2>
+    <div class="bars" id="bars"></div>
+  </section>
+
+  <section id="weight">
+    <div class="head"><div><h1>Weight</h1><p class="sub">Weigh in once a week, same day and time</p></div><button class="gear" aria-label="Settings">⚙︎</button></div>
+    <div class="stats" style="margin-top:0">
+      <div class="stat"><b id="wNow">–</b><span>latest (kg)</span></div>
+      <div class="stat"><b id="wChange">–</b><span>change</span></div>
+      <div class="stat"><b id="wCount">0</b><span>weigh-ins</span></div>
+    </div>
+    <div class="w" style="margin-top:14px;padding:12px"><svg class="chart" id="wChart" viewBox="0 0 320 150" preserveAspectRatio="none"></svg></div>
+    <h2>History</h2>
+    <div id="wList"></div>
+  </section>
+
+  <section id="custom">
+    <div class="head"><div><h1 id="cTitle"></h1><p class="sub">Tap the circle to tick, tap the text to edit</p></div><button class="gear" aria-label="Settings">⚙︎</button></div>
+    <div id="cList"></div>
   </section>
 </main>
 
-<button class="fab" id="fab" aria-label="Add event">+</button>
+<button class="fab" id="fab" aria-label="Add">+</button>
 
+<!-- Event sheet -->
 <div class="sheet-bg" id="sheetBg">
   <div class="sheet" role="dialog" aria-modal="true">
     <div class="grab"></div>
@@ -253,30 +313,50 @@
   </div>
 </div>
 
-<nav class="tabs">
-  <button data-t="today" class="on"><i></i>Today</button>
-  <button data-t="week"><i></i>Week</button>
-  <button data-t="track"><i></i>Calendar</button>
-  <button data-t="plan"><i></i>Plan</button>
-</nav>
+<!-- General sheet -->
+<div class="sheet-bg" id="sheet2Bg"><div class="sheet" role="dialog" aria-modal="true" id="sheet2"></div></div>
+
+<nav class="tabs" id="tabbar"></nav>
 
 <script>
-// ---------- Settings ----------
+// ================= Settings =================
 const START = new Date(2026, 10, 25);  // 25 Nov 2026
 const END   = new Date(2027, 10, 24);  // 24 Nov 2027
+const MAX_TABS = 5;
 
-const TYPES = {
-  gym:{label:"Gym"}, uni:{label:"Uni"}, mosque:{label:"Mosque"}, travel:{label:"Travel"}, other:{label:"Other"}
+const TYPES = { gym:{label:"Gym"}, uni:{label:"Uni"}, mosque:{label:"Mosque"}, travel:{label:"Travel"}, other:{label:"Other"} };
+const BUILTIN = {
+  today: {name:"Today",    color:"var(--accent)"},
+  week:  {name:"Week",     color:"var(--uni)"},
+  track: {name:"Calendar", color:"var(--gym)"},
+  plan:  {name:"Plan",     color:"var(--mosque)"},
+  food:  {name:"Food",     color:"var(--travel)"},
+  weight:{name:"Weight",   color:"var(--other)"}
+};
+const CUSTOM_COLORS = ["var(--teal)","var(--yellow)","var(--uni)","var(--other)","var(--mosque)","var(--gym)"];
+
+const DEFAULT_PLAN = {
+  subtitle: "Fat loss + stronger legs · 10:00–11:15",
+  workouts: [
+    {id:"w2", day:2, name:"Legs + core", sub:"Strength A", items:["Goblet squat","Romanian deadlift (dumbbells)","Walking lunges","Hip thrust or glute bridge","Leg curl machine","Calf raises","Plank"], note:"3 sets × 10–12 reps, 60–90s rest. Add weight once 12 reps feels easy.", fin:"Finish: 15 min StairMaster, steady pace"},
+    {id:"w3", day:3, name:"StairMaster + core", sub:"Cardio", items:["20 min StairMaster: 2 min steady, 1 min faster, repeat","10 min incline treadmill walk","Dead bug","Bicycle crunch","Side plank"], note:"Core: 3 rounds. Don't lean on the rails – it takes the work off your legs.", fin:"Hard enough that talking is a bit of an effort"},
+    {id:"w5", day:5, name:"Full body", sub:"Strength B", items:["Leg press","Dumbbell step-ups","Lat pulldown","Dumbbell chest press","Dumbbell shoulder press","Triceps pushdown","Bicep curls"], note:"3 sets × 10–12 reps", fin:"Finish: 10–15 min StairMaster intervals (1 min fast / 1 min easy)"},
+    {id:"w0", day:0, name:"Cardio", sub:"Optional", items:["20 min easy StairMaster, or 30–40 min brisk walk, swim or cycle","Stretch legs 5–10 min: quads, hamstrings, hips"], note:"Easy pace – recovery day", fin:"Skip it if your legs are sore — still a good week"}
+  ],
+  tipsTitle: "Arms, belly, face & thighs",
+  tips: [
+    "You can't burn fat from one spot. Arms, belly, face and thighs slim down as your overall body fat drops.",
+    "Leg weights + StairMaster build firm muscle in your thighs and glutes while the fat comes off, so legs end up slimmer and stronger, not bulky.",
+    "Squats, lunges and step-ups: keep your knees in line with your toes and push through your heels.",
+    "The arm and shoulder work tones the muscle underneath, so arms look firmer as fat comes off.",
+    "Food matters more than the gym: protein and veg every meal, fewer sugary drinks, snacks and takeaways.",
+    "Plenty of water and less salty food reduces face puffiness quickly.",
+    "8,000–10,000 steps a day. Walking to the station counts.",
+    "Sleep 7–9 hours. Poor sleep makes cravings worse.",
+    "Weigh or measure your waist once a week, same day and time."
+  ]
 };
 
-const WORKOUTS = {
-  2: {name:"Legs + core", sub:"Strength A", items:["Goblet squat","Romanian deadlift (dumbbells)","Walking lunges","Hip thrust or glute bridge","Leg curl machine","Calf raises","Plank"], note:"3 sets × 10–12 reps, 60–90s rest. Add weight once 12 reps feels easy.", fin:"Finish: 15 min StairMaster, steady pace"},
-  3: {name:"StairMaster + core", sub:"Cardio", items:["20 min StairMaster: 2 min steady, 1 min faster, repeat","10 min incline treadmill walk","Dead bug","Bicycle crunch","Side plank"], note:"Core: 3 rounds. Don't lean on the rails – it takes the work off your legs.", fin:"Hard enough that talking is a bit of an effort"},
-  5: {name:"Full body", sub:"Strength B", items:["Leg press","Dumbbell step-ups","Lat pulldown","Dumbbell chest press","Dumbbell shoulder press","Triceps pushdown","Bicep curls"], note:"3 sets × 10–12 reps", fin:"Finish: 10–15 min StairMaster intervals (1 min fast / 1 min easy)"},
-  0: {name:"Cardio", sub:"Optional", items:["20 min easy StairMaster, or 30–40 min brisk walk, swim or cycle","Stretch legs 5–10 min: quads, hamstrings, hips"], note:"Easy pace – recovery day", fin:"Skip it if your legs are sore — still a good week"}
-};
-
-// Your regular week. Used the first time the app opens; after that it's editable in the app.
 const DEFAULT_WEEK = [
   [1,"travel","10:45","12:00","Train to MMU","Rochdale → Manchester"],
   [1,"uni","12:00","18:00","Uni","MMU"],
@@ -296,36 +376,55 @@ const DEFAULT_WEEK = [
 const DAY_NAMES = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
-// ---------- Storage ----------
+// ================= Storage =================
 function load(k, fallback){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; } catch(e){ return fallback; } }
 function store(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
-let done   = load("gymDone", {});
-let events = load("gymEvents", null);
-let skips  = load("gymSkips", {});   // { eventId: ["2026-12-01", ...] } weekly events hidden on those dates
-if (!Array.isArray(events)) {
-  events = DEFAULT_WEEK.map((e, i) => ({id:"d"+i, repeat:"weekly", day:e[0], type:e[1], start:e[2], end:e[3], title:e[4], note:e[5]}));
-  store("gymEvents", events);
-}
-// Update the original gym sessions to the new plan (only if not edited by you)
-{ const upd = {"d3":["Gym · Strength A","Gym · Legs + core","Leg strength + StairMaster"],
+let done    = load("gymDone", {});
+let events  = load("gymEvents", null);
+let skips   = load("gymSkips", {});
+let plan    = load("gymPlan", null);
+let tabs    = load("gymTabs", null);
+let customs = load("gymCustom", {});
+let food    = load("gymFood", {goal:null, log:{}});
+let weights = load("gymWeight", []);
+
+if (!Array.isArray(events)) events = DEFAULT_WEEK.map((e, i) => ({id:"d"+i, repeat:"weekly", day:e[0], type:e[1], start:e[2], end:e[3], title:e[4], note:e[5]}));
+{ // older versions: rename the original gym sessions if untouched
+  const upd = {"d3":["Gym · Strength A","Gym · Legs + core","Leg strength + StairMaster"],
                "d5":["Gym · Cardio + core","Gym · StairMaster + core","Intervals + core"],
                "d10":["Gym · Strength B","Gym · Full body","Strength + StairMaster"]};
-  let changed = false;
-  events.forEach(e => { const u = upd[e.id]; if (u && e.title === u[0]) { e.title = u[1]; e.note = u[2]; changed = true; } });
-  if (changed) store("gymEvents", events); }
-function saveAll(){ store("gymDone", done); store("gymEvents", events); store("gymSkips", skips); }
+  events.forEach(e => { const u = upd[e.id]; if (u && e.title === u[0]) { e.title = u[1]; e.note = u[2]; } });
+}
+if (!plan || !Array.isArray(plan.workouts)) plan = JSON.parse(JSON.stringify(DEFAULT_PLAN));
+if (!Array.isArray(tabs)) tabs = ["today","week","track","plan","food","weight"].map((id, i) => ({id, on: i < 4}));
+Object.keys(BUILTIN).forEach(id => { if (!tabs.some(t => t.id === id)) tabs.push({id, on:false}); });
+tabs = tabs.filter(t => BUILTIN[t.id] || customs[t.id]);
+if (!food || typeof food !== "object") food = {goal:null, log:{}};
+food.log = food.log || {};
+if (!Array.isArray(weights)) weights = [];
 
-// ---------- Helpers ----------
+function saveAll(){
+  store("gymDone", done); store("gymEvents", events); store("gymSkips", skips); store("gymPlan", plan);
+  store("gymTabs", tabs); store("gymCustom", customs); store("gymFood", food); store("gymWeight", weights);
+}
+saveAll();
+
+// ================= Helpers =================
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, "0");
 const key = d => d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
 const parseKey = k => { const [y,m,d] = k.split("-").map(Number); return new Date(y, m-1, d); };
 const midnight = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 const today = () => midnight(new Date());
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt = t => { if(!t) return ""; let [h,m] = t.split(":").map(Number); const ap = h>=12?"pm":"am"; h = h%12||12; return m ? `${h}:${pad(m)}${ap}` : `${h}${ap}`; };
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+const shortDate = d => `${DAY_NAMES[d.getDay()].slice(0,3)} ${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`;
+const num = n => Math.round(n).toLocaleString("en-GB");
+const tabInfo = id => BUILTIN[id] || (customs[id] ? {name: customs[id].name, color: customs[id].color} : {name:"?", color:"#ccc"});
 
+// ================= Events / gym =================
 function eventsOn(d){
   const k = key(d), dow = d.getDay();
   return events.filter(e =>
@@ -336,6 +435,7 @@ function eventsOn(d){
 const weeklyOn = dow => events.filter(e => e.repeat === "weekly" && e.day === dow).sort((a,b) => (a.start||"").localeCompare(b.start||""));
 const inRange = d => d >= START && d <= END;
 const isGym = d => inRange(d) && eventsOn(d).some(e => e.type === "gym");
+const workoutFor = dow => plan.workouts.find(w => w.day === dow);
 
 function gymDaysBetween(a, b){ const out=[]; for(let d=new Date(a); d<=b; d.setDate(d.getDate()+1)) if(isGym(d)) out.push(new Date(d)); return out; }
 function stats(){
@@ -368,7 +468,7 @@ function bindEvents(container){
   });
 }
 
-// ---------- Today ----------
+// ================= Today =================
 function renderToday(){
   const t = today(), dow = t.getDay(), k = key(t);
   const h = new Date().getHours();
@@ -377,7 +477,7 @@ function renderToday(){
   const hero = $("hero");
   if (isGym(t)) {
     const g = eventsOn(t).find(e => e.type === "gym");
-    const w = WORKOUTS[dow], d = !!done[k];
+    const w = workoutFor(dow), d = !!done[k];
     hero.className = "hero";
     hero.innerHTML = `<button class="big ${d?"done":""}" id="bigBtn" aria-label="Mark done">${d?"✓":"○"}</button>
       <div><div class="t">${d ? "Nice work! 💪" : esc(w ? w.name : g.title) + (g.start ? " · " + fmt(g.start) : "")}</div>
@@ -389,19 +489,25 @@ function renderToday(){
   } else {
     hero.className = "hero rest";
     const next = nextGym();
-    hero.innerHTML = `<div class="big" style="color:var(--muted);box-shadow:none">☾</div><div><div class="t">Rest day</div><div class="d">${next ? "Next gym: " + DAY_NAMES[next.getDay()] + " " + next.getDate() + " " + MONTHS[next.getMonth()].slice(0,3) : ""}</div></div>`;
+    hero.innerHTML = `<div class="big" style="color:var(--muted);box-shadow:none">☾</div><div><div class="t">Rest day</div><div class="d">${next ? "Next gym: " + shortDate(next) : ""}</div></div>`;
   }
   const s = stats();
   $("sDone").textContent = s.done; $("sStreak").textContent = s.streak; $("sRate").textContent = s.rate + "%";
+  // food summary when the Food tab is on
+  if (tabs.some(x => x.id === "food" && x.on) && food.goal) {
+    const eaten = dayTotal(k).kcal, left = food.goal - eaten;
+    $("todayFood").innerHTML = `<div class="fi" style="margin-top:12px;background:var(--travel-soft)" id="todayFoodBtn"><div><b>Food today</b><br><span>${num(eaten)} of ${num(food.goal)} kcal</span></div><div class="k">${left >= 0 ? num(left) + " left" : num(-left) + " over"}</div></div>`;
+    $("todayFoodBtn").onclick = () => go("food");
+  } else $("todayFood").innerHTML = "";
   const ev = eventsOn(t);
   $("todayList").innerHTML = (ev.length ? ev.map(e => eventHTML(e, k)).join("") : `<div class="empty">Nothing planned — enjoy the free day.</div>`)
     + `<button class="addline" id="addToday">+ Add to today</button>`;
   bindEvents($("todayList"));
   $("addToday").onclick = () => openSheet({dateKey:k});
 }
-function nextGym(){ const d = today(); for(let i=1;i<370;i++){ d.setDate(d.getDate()+1); if(isGym(d)) return new Date(d);} }
+function nextGym(){ let d = today(); for(let i=1;i<370;i++){ d = addDays(d,1); if(isGym(d)) return d; } }
 
-// ---------- Week ----------
+// ================= Week =================
 let selDay = new Date().getDay();
 function renderWeek(){
   const order = [1,2,3,4,5,6,0], letters = {1:"M",2:"T",3:"W",4:"T",5:"F",6:"S",0:"S"};
@@ -417,7 +523,7 @@ function renderWeek(){
   $("legend").innerHTML = Object.keys(TYPES).map(t => `<span><i style="background:var(--${t})"></i>${TYPES[t].label}</span>`).join("");
 }
 
-// ---------- Calendar ----------
+// ================= Calendar =================
 let view = (() => { const t = today(); const b = t < START ? START : t > END ? END : t; return new Date(b.getFullYear(), b.getMonth(), 1); })();
 let selKey = key(today() < START ? START : today());
 function renderCal(){
@@ -430,14 +536,13 @@ function renderCal(){
   let planned = 0, got = 0;
   for (let d = 1; d <= days; d++) {
     const dt = new Date(y, m, d), k = key(dt), cls = ["c"];
-    const evs = eventsOn(dt);
     if (isGym(dt)) {
       planned++; cls.push("g");
       if (done[k]) { cls.push("done"); got++; } else if (dt < t) cls.push("miss");
     }
     if (+dt === +t) cls.push("today");
     if (k === selKey) cls.push("sel");
-    const types = [...new Set(evs.filter(e => e.repeat === "once").map(e => e.type))].slice(0,3);
+    const types = [...new Set(eventsOn(dt).filter(e => e.repeat === "once").map(e => e.type))].slice(0,3);
     const dots = types.length ? `<span class="dots">${types.map(tp => `<i style="background:var(--${tp})"></i>`).join("")}</span>` : "";
     html += `<button class="${cls.join(" ")}" data-k="${k}">${d}${dots}</button>`;
   }
@@ -448,9 +553,8 @@ function renderCal(){
   $("prev").disabled = (y < START.getFullYear() || (y === START.getFullYear() && m <= START.getMonth()));
   $("next").disabled = (y > END.getFullYear() || (y === END.getFullYear() && m >= END.getMonth()));
 
-  // Selected day panel
   const sd = parseKey(selKey), sev = eventsOn(sd);
-  $("selTitle").textContent = `${DAY_NAMES[sd.getDay()]} ${sd.getDate()} ${MONTHS[sd.getMonth()].slice(0,3)}`;
+  $("selTitle").textContent = shortDate(sd);
   if (isGym(sd) && sd <= t) {
     $("selGym").innerHTML = `<button class="pill gymbtn ${done[selKey]?"done":""}" id="selGymBtn">${done[selKey] ? "✓ Gym done" : "Mark gym done"}</button>`;
     $("selGymBtn").onclick = () => toggle(selKey);
@@ -459,7 +563,6 @@ function renderCal(){
     + `<button class="addline" id="addSel">+ Add to this day</button>`;
   bindEvents($("selList"));
   $("addSel").onclick = () => openSheet({dateKey: selKey});
-
   const s = stats();
   $("yDone").textContent = s.done; $("yPlanned").textContent = s.planned; $("yTotal").textContent = s.total;
 }
@@ -472,18 +575,311 @@ function toggle(k){
   if (navigator.vibrate) navigator.vibrate(10);
 }
 
-// ---------- Plan ----------
+// ================= Plan (editable) =================
+const DAY_ORDER = d => d === null || d === undefined ? 9 : (d + 6) % 7;
 function renderPlan(){
-  const col = {2:"var(--gym)",3:"var(--accent)",5:"var(--gym)",0:"var(--uni)"};
-  $("workouts").innerHTML = [2,3,5,0].map(d => { const w = WORKOUTS[d];
-    return `<div class="w"><div class="top"><b><span class="tag" style="background:${col[d]}"></span>${DAY_NAMES[d]} · ${w.name}</b><span>${w.sub}</span></div>
-      <ul>${w.items.map(i => `<li>${i}</li>`).join("")}</ul>
-      <div class="hint" style="margin-top:6px">${w.note}</div><div class="fin">${w.fin}</div></div>`; }).join("");
+  $("planSub").textContent = plan.subtitle || "";
+  const cols = ["var(--gym)","var(--accent)","var(--uni)","var(--mosque)","var(--travel)","var(--teal)"];
+  const list = [...plan.workouts].sort((a,b) => DAY_ORDER(a.day) - DAY_ORDER(b.day));
+  $("workouts").innerHTML = list.map((w, i) => `<div class="w">
+      <div class="top"><b><span class="tag" style="background:${cols[i % cols.length]}"></span>${w.day !== null && w.day !== undefined ? DAY_NAMES[w.day] + " · " : ""}${esc(w.name)}</b>
+        <button class="pill sm" data-edit="${w.id}">Edit</button></div>
+      ${w.sub ? `<div class="meta" style="font-size:13px;color:var(--muted);margin-top:2px">${esc(w.sub)}</div>` : ""}
+      ${w.items.length ? `<ul>${w.items.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+      ${w.note ? `<div class="hint" style="margin-top:6px">${esc(w.note)}</div>` : ""}
+      ${w.fin ? `<div class="fin">${esc(w.fin)}</div>` : ""}</div>`).join("") || `<div class="empty">No workouts yet.</div>`;
+  $("workouts").querySelectorAll("[data-edit]").forEach(b => b.onclick = () => editWorkout(plan.workouts.find(w => w.id === b.dataset.edit)));
+  $("tipsTitle").textContent = plan.tipsTitle || "Tips";
+  $("tips").innerHTML = plan.tips.length ? plan.tips.map(t => `<li>${esc(t)}</li>`).join("") : `<li style="list-style:none;margin-left:-18px;color:var(--muted)">No tips yet — tap Edit.</li>`;
+}
+$("addWorkout").onclick = () => editWorkout(null);
+$("editTips").onclick = () => {
+  sheet2(`<h3>Edit tips</h3>
+    <label class="field"><span>Heading</span><input id="tTitle" value="${esc(plan.tipsTitle || "")}"></label>
+    <label class="field"><span>Tips — one per line</span><textarea id="tText">${esc(plan.tips.join("\n"))}</textarea></label>
+    <label class="field"><span>Plan subtitle</span><input id="tSub" value="${esc(plan.subtitle || "")}"></label>
+    <div class="actions"><button class="btn ghost" data-close>Cancel</button><button class="btn primary" id="tSave">Save</button></div>`);
+  $("tSave").onclick = () => {
+    plan.tipsTitle = $("tTitle").value.trim();
+    plan.tips = $("tText").value.split("\n").map(s => s.trim()).filter(Boolean);
+    plan.subtitle = $("tSub").value.trim();
+    saveAll(); close2(); renderPlan();
+  };
+};
+function editWorkout(w){
+  const isNew = !w;
+  w = w || {id: uid(), day: null, name:"", sub:"", items:[], note:"", fin:""};
+  const dayOpts = `<option value="">No set day</option>` + [1,2,3,4,5,6,0].map(d => `<option value="${d}" ${w.day === d ? "selected" : ""}>${DAY_NAMES[d]}</option>`).join("");
+  sheet2(`<h3>${isNew ? "Add workout" : "Edit workout"}</h3>
+    <label class="field"><span>Name</span><input id="wName" value="${esc(w.name)}" placeholder="e.g. Legs + core"></label>
+    <div class="two">
+      <label class="field"><span>Day</span><select id="wDay">${dayOpts}</select></label>
+      <label class="field"><span>Label</span><input id="wSub" value="${esc(w.sub)}" placeholder="e.g. Strength A"></label>
+    </div>
+    <label class="field"><span>Exercises — one per line</span><textarea id="wItems" placeholder="Goblet squat&#10;Walking lunges">${esc(w.items.join("\n"))}</textarea></label>
+    <label class="field"><span>Sets / reps note</span><input id="wNote" value="${esc(w.note)}" placeholder="3 sets × 12 reps"></label>
+    <label class="field"><span>Finisher</span><input id="wFin" value="${esc(w.fin)}" placeholder="15 min StairMaster"></label>
+    <div class="err" id="wErr"></div>
+    <div class="actions">${isNew ? "" : `<button class="btn danger" id="wDel">Delete</button>`}
+      <button class="btn ghost" data-close>Cancel</button><button class="btn primary" id="wSave">Save</button></div>`);
+  $("wSave").onclick = () => {
+    const name = $("wName").value.trim();
+    if (!name) { $("wErr").textContent = "Give it a name."; return; }
+    const dayVal = $("wDay").value;
+    const day = dayVal === "" ? null : +dayVal;
+    if (day !== null) plan.workouts.forEach(x => { if (x.id !== w.id && x.day === day) x.day = null; });
+    Object.assign(w, {name, day, sub: $("wSub").value.trim(), note: $("wNote").value.trim(), fin: $("wFin").value.trim(),
+      items: $("wItems").value.split("\n").map(s => s.trim()).filter(Boolean)});
+    if (isNew) plan.workouts.push(w);
+    saveAll(); close2(); renderPlan(); renderToday();
+  };
+  if ($("wDel")) $("wDel").onclick = () => {
+    if (!confirm("Delete this workout?")) return;
+    plan.workouts = plan.workouts.filter(x => x.id !== w.id);
+    saveAll(); close2(); renderPlan(); renderToday();
+  };
 }
 
-// ---------- Add / edit sheet ----------
+// ================= Food =================
+let foodDay = key(today());
+function dayTotal(k){
+  return (food.log[k] || []).reduce((a, f) => ({kcal: a.kcal + (+f.kcal || 0), protein: a.protein + (+f.protein || 0)}), {kcal:0, protein:0});
+}
+function renderFood(){
+  const d = parseKey(foodDay), isToday = foodDay === key(today());
+  $("fDay").textContent = isToday ? "Today" : shortDate(d);
+  $("fNext").disabled = isToday;
+  const tot = dayTotal(foodDay), goal = food.goal;
+  const R = 54, C = 2 * Math.PI * R, pct = goal ? Math.min(tot.kcal / goal, 1) : 0, over = goal && tot.kcal > goal;
+  $("ringwrap").innerHTML = `<div class="ring"><svg width="128" height="128" viewBox="0 0 128 128">
+      <circle cx="64" cy="64" r="${R}" fill="none" stroke="#fff" stroke-width="12"/>
+      <circle cx="64" cy="64" r="${R}" fill="none" stroke="${over ? "var(--accent)" : "var(--travel)"}" stroke-width="12" stroke-linecap="round"
+        stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - pct)}" style="transition:stroke-dashoffset .5s"/></svg>
+      <div class="mid"><b>${goal ? num(Math.abs(goal - tot.kcal)) : num(tot.kcal)}</b><span>${goal ? (over ? "kcal over" : "kcal left") : "kcal"}</span></div></div>
+    <div class="ringinfo"><div class="t">${goal ? `Goal ${num(goal)} kcal` : "Set a calorie goal"}</div>
+      <div class="d">${goal ? "Tap to change your goal" : "Tap here to set a daily goal"}</div></div>`;
+  $("ringwrap").onclick = editGoal;
+  $("fEaten").textContent = num(tot.kcal);
+  $("fProtein").textContent = num(tot.protein) + "g";
+  const last7 = [...Array(7)].map((_, i) => addDays(d, i - 6));
+  const logged = last7.filter(x => (food.log[key(x)] || []).length);
+  $("fAvg").textContent = logged.length ? num(logged.reduce((a, x) => a + dayTotal(key(x)).kcal, 0) / logged.length) : "–";
+
+  const items = food.log[foodDay] || [];
+  $("foodList").innerHTML = items.map(f => `<div class="fi" data-id="${f.id}"><div><b>${esc(f.name)}</b>${f.protein ? `<br><span>${num(f.protein)}g protein</span>` : ""}</div><div class="k">${num(f.kcal)} kcal</div></div>`).join("")
+    + `<button class="addline" id="addFoodBtn">+ Add food</button>`;
+  $("foodList").querySelectorAll(".fi").forEach(el => el.onclick = () => editFood(items.find(f => f.id === el.dataset.id)));
+  $("addFoodBtn").onclick = () => editFood(null);
+
+  const vals = last7.map(x => dayTotal(key(x)).kcal), maxV = Math.max(goal || 0, ...vals, 1) * 1.1;
+  $("bars").innerHTML = (goal ? `<div class="goalline" style="bottom:${goal / maxV * 88 + 17}px"></div>` : "")
+    + last7.map((x, i) => `<div class="b"><div class="${vals[i] ? (goal && vals[i] > goal ? "over" : "ok") : ""}" style="height:${Math.max(vals[i] / maxV * 88, 4)}px"></div><span>${"SMTWTFS"[x.getDay()]}</span></div>`).join("");
+}
+$("fPrev").onclick = () => { foodDay = key(addDays(parseKey(foodDay), -1)); renderFood(); };
+$("fNext").onclick = () => { foodDay = key(addDays(parseKey(foodDay), 1)); renderFood(); };
+function editGoal(){
+  sheet2(`<h3>Daily calorie goal</h3>
+    <label class="field"><span>Calories per day</span><input id="gVal" type="number" inputmode="numeric" value="${food.goal || ""}" placeholder="e.g. 1800"></label>
+    <p class="hint" style="margin-top:-4px">A steady goal you can stick to works better than a very low one. If you're not sure what's right for you, the NHS BMI / calorie tools or your GP can help.</p>
+    <div class="err" id="gErr"></div>
+    <div class="actions">${food.goal ? `<button class="btn danger" id="gClear">Remove goal</button>` : ""}<button class="btn ghost" data-close>Cancel</button><button class="btn primary" id="gSave">Save</button></div>`);
+  $("gSave").onclick = () => {
+    const v = Math.round(+$("gVal").value);
+    if (!v || v < 500 || v > 6000) { $("gErr").textContent = "Enter a number between 500 and 6,000."; return; }
+    food.goal = v; saveAll(); close2(); renderFood(); renderToday();
+  };
+  if ($("gClear")) $("gClear").onclick = () => { food.goal = null; saveAll(); close2(); renderFood(); renderToday(); };
+}
+function recentFoods(){
+  const seen = new Map();
+  Object.keys(food.log).sort().reverse().forEach(k => (food.log[k] || []).forEach(f => { const n = f.name.toLowerCase(); if (!seen.has(n)) seen.set(n, f); }));
+  return [...seen.values()].slice(0, 12);
+}
+function editFood(f){
+  const isNew = !f;
+  const rec = isNew ? recentFoods() : [];
+  sheet2(`<h3>${isNew ? "Add food" : "Edit food"}</h3>
+    ${rec.length ? `<div class="field"><span>Recent — tap to fill</span><div class="recent">${rec.map((r, i) => `<button data-r="${i}">${esc(r.name)} · ${num(r.kcal)}</button>`).join("")}</div></div>` : ""}
+    <label class="field"><span>Food</span><input id="nName" value="${esc(f ? f.name : "")}" placeholder="e.g. Chicken wrap" maxlength="60"></label>
+    <div class="two">
+      <label class="field"><span>Calories</span><input id="nKcal" type="number" inputmode="numeric" value="${f ? f.kcal : ""}" placeholder="kcal"></label>
+      <label class="field"><span>Protein (g)</span><input id="nPro" type="number" inputmode="decimal" value="${f && f.protein ? f.protein : ""}" placeholder="optional"></label>
+    </div>
+    <div class="err" id="nErr"></div>
+    <div class="actions">${isNew ? "" : `<button class="btn danger" id="nDel">Delete</button>`}<button class="btn ghost" data-close>Cancel</button><button class="btn primary" id="nSave">Save</button></div>`);
+  $("sheet2").querySelectorAll("[data-r]").forEach(b => b.onclick = () => {
+    const r = rec[+b.dataset.r]; $("nName").value = r.name; $("nKcal").value = r.kcal; $("nPro").value = r.protein || "";
+  });
+  $("nSave").onclick = () => {
+    const name = $("nName").value.trim(), kcal = Math.round(+$("nKcal").value), protein = +$("nPro").value || 0;
+    if (!name) { $("nErr").textContent = "What did you eat?"; return; }
+    if (!(kcal >= 0) || $("nKcal").value === "") { $("nErr").textContent = "Add the calories."; return; }
+    const list = food.log[foodDay] = food.log[foodDay] || [];
+    if (isNew) list.push({id: uid(), name, kcal, protein}); else Object.assign(f, {name, kcal, protein});
+    saveAll(); close2(); renderFood(); renderToday();
+  };
+  if ($("nDel")) $("nDel").onclick = () => {
+    food.log[foodDay] = (food.log[foodDay] || []).filter(x => x.id !== f.id);
+    if (!food.log[foodDay].length) delete food.log[foodDay];
+    saveAll(); close2(); renderFood(); renderToday();
+  };
+}
+
+// ================= Weight =================
+function renderWeight(){
+  const w = [...weights].sort((a,b) => a.date.localeCompare(b.date));
+  $("wNow").textContent = w.length ? w[w.length-1].kg : "–";
+  const ch = w.length > 1 ? +(w[w.length-1].kg - w[0].kg).toFixed(1) : null;
+  $("wChange").textContent = ch === null ? "–" : (ch > 0 ? "+" : "") + ch;
+  $("wChange").style.color = ch === null ? "" : ch <= 0 ? "var(--gym-ink)" : "var(--travel-ink)";
+  $("wCount").textContent = w.length;
+  const svg = $("wChart");
+  if (w.length < 2) {
+    svg.innerHTML = `<text x="160" y="80" text-anchor="middle" fill="#9a9aa8" font-size="13" font-family="-apple-system,sans-serif">${w.length ? "One more weigh-in to see your line" : "Your progress line appears here"}</text>`;
+  } else {
+    const ks = w.map(x => x.kg), lo = Math.min(...ks) - 1, hi = Math.max(...ks) + 1;
+    const pts = w.map((x, i) => [12 + i * (296 / (w.length - 1)), 140 - (x.kg - lo) / (hi - lo) * 125]);
+    const line = pts.map(p => p.join(",")).join(" ");
+    svg.innerHTML = `<polyline points="${line} 308,150 12,150" fill="var(--other-soft)" stroke="none" opacity=".7"/>
+      <polyline points="${line}" fill="none" stroke="var(--other)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+      ${pts.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="#fff" stroke="var(--other)" stroke-width="2.5" vector-effect="non-scaling-stroke"/>`).join("")}`;
+  }
+  $("wList").innerHTML = [...w].reverse().map(x => `<div class="fi" data-d="${x.date}"><div><b>${shortDate(parseKey(x.date))}</b></div><div class="k" style="color:var(--other-ink)">${x.kg} kg</div></div>`).join("")
+    + `<button class="addline" id="addWeightBtn">+ Log weight</button>`;
+  $("wList").querySelectorAll(".fi").forEach(el => el.onclick = () => editWeight(weights.find(x => x.date === el.dataset.d)));
+  $("addWeightBtn").onclick = () => editWeight(null);
+}
+function editWeight(entry){
+  const isNew = !entry;
+  sheet2(`<h3>${isNew ? "Log weight" : "Edit weigh-in"}</h3>
+    <div class="two">
+      <label class="field"><span>Date</span><input id="kDate" type="date" value="${entry ? entry.date : key(today())}"></label>
+      <label class="field"><span>Weight (kg)</span><input id="kVal" type="number" inputmode="decimal" step="0.1" value="${entry ? entry.kg : ""}" placeholder="kg"></label>
+    </div>
+    <div class="err" id="kErr"></div>
+    <div class="actions">${isNew ? "" : `<button class="btn danger" id="kDel">Delete</button>`}<button class="btn ghost" data-close>Cancel</button><button class="btn primary" id="kSave">Save</button></div>`);
+  $("kSave").onclick = () => {
+    const date = $("kDate").value, kg = Math.round(+$("kVal").value * 10) / 10;
+    if (!date) { $("kErr").textContent = "Pick a date."; return; }
+    if (!(kg > 20 && kg < 400)) { $("kErr").textContent = "Enter your weight in kg."; return; }
+    weights = weights.filter(x => x.date !== date && (!entry || x.date !== entry.date));
+    weights.push({date, kg});
+    saveAll(); close2(); renderWeight();
+  };
+  if ($("kDel")) $("kDel").onclick = () => { weights = weights.filter(x => x.date !== entry.date); saveAll(); close2(); renderWeight(); };
+}
+
+// ================= Custom sections =================
+function renderCustom(id){
+  const c = customs[id]; if (!c) return;
+  $("cTitle").textContent = c.name;
+  $("cList").innerHTML = c.items.map(it => `<div class="chk ${it.done ? "done" : ""}" data-id="${it.id}">
+      <button class="box" style="background:${it.done ? c.color : "#f2f2f6"}">${it.done ? "✓" : ""}</button>
+      <div class="txt">${esc(it.text)}</div></div>`).join("")
+    + `<button class="addline" id="addItemBtn" style="margin-top:14px">+ Add item</button>`;
+  $("cList").querySelectorAll(".chk").forEach(el => {
+    const it = c.items.find(x => x.id === el.dataset.id);
+    el.querySelector(".box").onclick = () => { it.done = !it.done; saveAll(); renderCustom(id); };
+    el.querySelector(".txt").onclick = () => editItem(id, it);
+  });
+  $("addItemBtn").onclick = () => editItem(id, null);
+}
+function editItem(id, it){
+  const isNew = !it;
+  sheet2(`<h3>${isNew ? "Add item" : "Edit item"}</h3>
+    <label class="field"><span>Text</span><input id="iText" value="${esc(it ? it.text : "")}" maxlength="120" placeholder="Write anything"></label>
+    <div class="actions">${isNew ? "" : `<button class="btn danger" id="iDel">Delete</button>`}<button class="btn ghost" data-close>Cancel</button><button class="btn primary" id="iSave">Save</button></div>`);
+  setTimeout(() => $("iText") && $("iText").focus(), 250);
+  $("iSave").onclick = () => {
+    const text = $("iText").value.trim(); if (!text) return;
+    if (isNew) customs[id].items.push({id: uid(), text, done:false}); else it.text = text;
+    saveAll(); close2(); renderCustom(id);
+  };
+  if ($("iDel")) $("iDel").onclick = () => { customs[id].items = customs[id].items.filter(x => x.id !== it.id); saveAll(); close2(); renderCustom(id); };
+}
+
+// ================= Settings (bottom bar) =================
+function openSettings(){
+  const onCount = tabs.filter(t => t.on).length;
+  sheet2(`<h3>Settings</h3>
+    <h2 style="margin-top:0">Bottom bar · up to ${MAX_TABS}</h2>
+    ${tabs.map((t, i) => { const info = tabInfo(t.id); return `<div class="trow">
+        <span class="dot" style="background:${info.color}"></span><span class="nm" ${customs[t.id] ? `data-ren="${t.id}" style="cursor:pointer"` : ""}>${esc(info.name)}${customs[t.id] ? ' <span style="color:var(--muted);font-size:13px">✎</span>' : ""}</span>
+        <button class="ib" data-up="${i}" ${i === 0 ? "disabled" : ""}>↑</button>
+        <button class="ib" data-down="${i}" ${i === tabs.length-1 ? "disabled" : ""}>↓</button>
+        ${customs[t.id] ? `<button class="ib" data-del="${t.id}" aria-label="Delete">✕</button>` : ""}
+        <label class="switch"><input type="checkbox" data-on="${i}" ${t.on ? "checked" : ""} ${t.on && onCount === 1 ? "disabled" : ""}><span></span></label>
+      </div>`; }).join("")}
+    <div class="err" id="sErr" style="margin-top:8px"></div>
+    <h2>New section</h2>
+    <div class="newrow"><input id="newName" placeholder="e.g. Shopping list, Goals" maxlength="16"><button class="pill" id="newAdd">Add</button></div>
+    <p class="hint">New sections are simple tick lists. Tap a section's name to rename it, or ✕ to delete it.</p>
+    <h2>Backup</h2>
+    <p class="hint" style="margin-top:0">Everything is saved on this phone. Save a backup now and then so you never lose anything.</p>
+    <div class="actions" style="margin-top:10px"><button class="btn ghost" id="backupBtn">Save backup</button><button class="btn ghost" id="restoreBtn">Restore</button></div>
+    <input type="file" id="restoreFile" accept=".json,application/json" hidden>
+    <div class="actions"><button class="btn primary" data-close>Done</button></div>`);
+  const sh = $("sheet2");
+  sh.querySelectorAll("[data-up]").forEach(b => b.onclick = () => { const i = +b.dataset.up; [tabs[i-1], tabs[i]] = [tabs[i], tabs[i-1]]; afterTabs(); });
+  sh.querySelectorAll("[data-down]").forEach(b => b.onclick = () => { const i = +b.dataset.down; [tabs[i+1], tabs[i]] = [tabs[i], tabs[i+1]]; afterTabs(); });
+  sh.querySelectorAll("[data-on]").forEach(b => b.onchange = () => {
+    const t = tabs[+b.dataset.on];
+    if (b.checked && tabs.filter(x => x.on).length >= MAX_TABS) { b.checked = false; $("sErr").textContent = `Only ${MAX_TABS} fit in the bar — turn one off first.`; return; }
+    t.on = b.checked; afterTabs();
+  });
+  sh.querySelectorAll("[data-del]").forEach(b => b.onclick = () => {
+    const id = b.dataset.del;
+    if (!confirm(`Delete "${customs[id].name}" and everything in it?`)) return;
+    delete customs[id]; tabs = tabs.filter(t => t.id !== id);
+    if (!tabs.some(t => t.on)) tabs[0].on = true;
+    afterTabs();
+  });
+  sh.querySelectorAll("[data-ren]").forEach(b => b.onclick = () => {
+    const id = b.dataset.ren, n = prompt("Rename section", customs[id].name);
+    if (n && n.trim()) { customs[id].name = n.trim().slice(0, 16); afterTabs(); }
+  });
+  $("newAdd").onclick = () => {
+    const name = $("newName").value.trim(); if (!name) return;
+    const id = "c_" + uid(), color = CUSTOM_COLORS[Object.keys(customs).length % CUSTOM_COLORS.length];
+    customs[id] = {name, color, items: []};
+    const canShow = tabs.filter(t => t.on).length < MAX_TABS;
+    tabs.push({id, on: canShow});
+    afterTabs();
+    if (!canShow) $("sErr").textContent = `"${name}" added — turn another tab off to show it.`;
+  };
+  $("backupBtn").onclick = backup;
+  $("restoreBtn").onclick = () => $("restoreFile").click();
+  $("restoreFile").onchange = restore;
+}
+function afterTabs(){ saveAll(); renderNav(); openSettings(); }
+
+// ================= Backup =================
+async function backup(){
+  const data = JSON.stringify({app:"gym", version:3, done, events, skips, plan, tabs, customs, food, weights});
+  const name = `gym-backup-${key(today())}.json`;
+  const file = new File([data], name, {type:"application/json"});
+  try { if (navigator.canShare && navigator.canShare({files:[file]})) { await navigator.share({files:[file], title:"Gym backup"}); return; } }
+  catch(e) { if (e.name === "AbortError") return; }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(file); a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+async function restore(e){
+  const f = e.target.files[0]; if (!f) return;
+  try {
+    const d = JSON.parse(await f.text());
+    if (d.app !== "gym" || !Array.isArray(d.events)) throw 0;
+    if (!confirm("Replace everything on this phone with this backup?")) return;
+    done = d.done || {}; events = d.events; skips = d.skips || {};
+    if (d.plan) plan = d.plan; if (d.tabs) tabs = d.tabs; if (d.customs) customs = d.customs;
+    if (d.food) food = d.food; if (d.weights) weights = d.weights;
+    saveAll(); close2(); renderNav(); renderAll(); renderPlan(); alert("Backup restored.");
+  } catch(_) { alert("That file isn't a gym backup."); }
+  e.target.value = "";
+}
+
+// ================= Event sheet =================
 let form = {};
-function nextDateFor(dow){ const d = today(); while (d.getDay() !== dow) d.setDate(d.getDate()+1); return key(d); }
+function nextDateFor(dow){ let d = today(); while (d.getDay() !== dow) d = addDays(d, 1); return key(d); }
 function openSheet({ev = null, dateKey = null, weeklyDay = null} = {}){
   form = ev ? {...ev} : {type:"other", repeat: weeklyDay !== null ? "weekly" : "once", start:"", end:"", title:"", note:""};
   form.editing = ev ? ev.id : null;
@@ -539,56 +935,59 @@ function saveForm(){
   if (start && end && end <= start) { $("fErr").textContent = "End time needs to be after the start."; return; }
   const ev = { id: form.editing || uid(), type: form.type, title, note: $("fNote").value.trim(), start, end, repeat: form.repeat };
   if (form.repeat === "once") ev.date = date;
-  else { ev.day = parseKey(date).getDay(); const orig = events.find(e => e.id === form.editing);
-         ev.from = (orig && orig.repeat === "weekly" && !orig.from) ? undefined : date; if (!ev.from) delete ev.from; }
+  else {
+    ev.day = parseKey(date).getDay();
+    const orig = events.find(e => e.id === form.editing);
+    if (!(orig && orig.repeat === "weekly" && !orig.from)) ev.from = date;
+  }
   if (form.editing) events = events.map(e => e.id === form.editing ? ev : e); else events.push(ev);
   saveAll(); closeSheet();
   if (form.repeat === "once") { selKey = date; const d = parseKey(date); view = new Date(d.getFullYear(), d.getMonth(), 1); }
   renderAll();
 }
 $("sheetBg").onclick = e => { if (e.target === $("sheetBg")) closeSheet(); };
+
+// ================= General sheet =================
+function sheet2(html){
+  $("sheet2").innerHTML = `<div class="grab"></div>` + html;
+  $("sheet2").querySelectorAll("[data-close]").forEach(b => b.onclick = close2);
+  if (!$("sheet2Bg").classList.contains("on")) { $("sheet2Bg").classList.add("on"); document.body.classList.add("lock"); }
+}
+function close2(){ $("sheet2Bg").classList.remove("on"); document.body.classList.remove("lock"); }
+$("sheet2Bg").onclick = e => { if (e.target === $("sheet2Bg")) close2(); };
+
+// ================= Navigation =================
+let cur = "today";
+function renderNav(){
+  const visible = tabs.filter(t => t.on);
+  if (!visible.some(t => t.id === cur)) cur = visible[0].id;
+  $("tabbar").innerHTML = visible.map(t => { const info = tabInfo(t.id);
+    return `<button data-t="${t.id}" class="${t.id === cur ? "on" : ""}"><i style="${t.id === cur ? `background:${info.color}` : ""}"></i>${esc(info.name)}</button>`; }).join("");
+  $("tabbar").querySelectorAll("button").forEach(b => b.onclick = () => go(b.dataset.t));
+  show();
+}
+function go(id){ cur = id; renderNav(); window.scrollTo(0, 0); }
+function show(){
+  const sec = customs[cur] ? "custom" : cur;
+  document.querySelectorAll("section").forEach(s => s.classList.toggle("on", s.id === sec));
+  if (cur === "food") renderFood();
+  if (cur === "weight") renderWeight();
+  if (customs[cur]) renderCustom(cur);
+  $("fab").style.display = cur === "plan" ? "none" : "";
+}
 $("fab").onclick = () => {
-  const tab = document.querySelector("section.on").id;
-  if (tab === "week") openSheet({weeklyDay: selDay});
-  else if (tab === "track") openSheet({dateKey: selKey});
+  if (cur === "week") openSheet({weeklyDay: selDay});
+  else if (cur === "track") openSheet({dateKey: selKey});
+  else if (cur === "food") editFood(null);
+  else if (cur === "weight") editWeight(null);
+  else if (customs[cur]) editItem(cur, null);
   else openSheet({dateKey: key(today())});
 };
+document.querySelectorAll(".gear").forEach(b => b.onclick = openSettings);
 
-// ---------- Backup ----------
-$("backupBtn").onclick = async () => {
-  const data = JSON.stringify({app:"gym", version:2, done, events, skips}, null, 1);
-  const name = `gym-backup-${key(today())}.json`;
-  const file = new File([data], name, {type:"application/json"});
-  try {
-    if (navigator.canShare && navigator.canShare({files:[file]})) { await navigator.share({files:[file], title:"Gym backup"}); return; }
-  } catch(e) { if (e.name === "AbortError") return; }
-  const a = document.createElement("a"); a.href = URL.createObjectURL(file); a.download = name; a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-};
-$("restoreBtn").onclick = () => $("restoreFile").click();
-$("restoreFile").onchange = async e => {
-  const f = e.target.files[0]; if (!f) return;
-  try {
-    const d = JSON.parse(await f.text());
-    if (d.app !== "gym" || !Array.isArray(d.events)) throw 0;
-    if (!confirm("Replace everything on this phone with this backup?")) return;
-    done = d.done || {}; events = d.events; skips = d.skips || {};
-    saveAll(); renderAll(); alert("Backup restored.");
-  } catch(_) { alert("That file isn't a gym backup."); }
-  e.target.value = "";
-};
-
-// ---------- Tabs ----------
-document.querySelectorAll("nav.tabs button").forEach(b => b.onclick = () => {
-  document.querySelectorAll("nav.tabs button").forEach(x => x.classList.toggle("on", x === b));
-  document.querySelectorAll("section").forEach(s => s.classList.toggle("on", s.id === b.dataset.t));
-  $("fab").style.display = b.dataset.t === "plan" ? "none" : "";
-  window.scrollTo(0, 0);
-});
-
-function renderAll(){ renderToday(); renderWeek(); renderCal(); }
-renderAll(); renderPlan();
-document.addEventListener("visibilitychange", () => { if (!document.hidden) renderAll(); });
+function renderAll(){ renderToday(); renderWeek(); renderCal(); if (cur === "food") renderFood(); }
+renderAll(); renderPlan(); renderNav();
+document.addEventListener("visibilitychange", () => { if (!document.hidden) { foodDay = key(today()); renderAll(); show(); } });
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 </script>
