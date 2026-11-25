@@ -149,6 +149,20 @@
   .chk .txt{flex:1;font-size:15.5px;cursor:pointer}
   .chk.done .txt{color:var(--muted);text-decoration:line-through}
 
+  /* Workout checklist */
+  .wk{padding:8px 16px 14px}
+  .wk .prog{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);font-weight:600;margin:8px 0 6px}
+  .wk .pbar{height:6px;border-radius:6px;background:#ececf1;overflow:hidden;margin-bottom:6px}
+  .wk .pbar div{height:100%;background:var(--gym);border-radius:6px;transition:width .3s}
+  .wk .chk{padding:10px 0}
+  .wk .chk:last-of-type{border-bottom:0}
+  .wk .chk.fut .box{opacity:.45;cursor:default}
+  .exh{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gym-ink);margin:14px 0 2px}
+  .pick{display:flex;flex-direction:column;gap:8px}
+  .pick button{border:0;background:#f5f5f8;border-radius:16px;padding:14px;text-align:left;font-size:15px;font-weight:650;cursor:pointer}
+  .pick button span{display:block;font-size:13px;color:var(--muted);font-weight:500;margin-top:2px}
+  .pick button.on{background:var(--gym-soft);color:var(--gym-ink)}
+
   /* Floating add button */
   .fab{position:fixed;right:20px;bottom:calc(82px + env(safe-area-inset-bottom));width:58px;height:58px;border-radius:50%;border:0;
     background:var(--accent);color:#fff;font-size:32px;font-weight:300;line-height:1;cursor:pointer;
@@ -223,6 +237,7 @@
       <div class="stat"><b id="sStreak">0</b><span>streak</span></div>
       <div class="stat"><b id="sRate">0%</b><span>on track</span></div>
     </div>
+    <div id="todayWorkout"></div>
     <div id="todayFood"></div>
     <h2>Today</h2>
     <div id="todayList"></div>
@@ -247,6 +262,7 @@
     <div class="bar"><div id="mBar" style="width:0"></div></div>
     <div class="dayhead"><h2 id="selTitle"></h2><span id="selGym"></span></div>
     <div id="selList"></div>
+    <div id="selWorkout"></div>
     <div class="stats" style="margin-top:22px">
       <div class="stat"><b id="yDone">0</b><span>sessions done</span></div>
       <div class="stat"><b id="yPlanned">0</b><span>planned so far</span></div>
@@ -346,25 +362,52 @@ const BUILTIN = {
 };
 const CUSTOM_COLORS = ["var(--teal)","var(--yellow)","var(--uni)","var(--other)","var(--mosque)","var(--gym)"];
 
+const PLAN_VERSION = 2;
+const ARMS = ["Arms – 2 rounds, 45s rest:","Dumbbell bicep curls ×12","Overhead triceps extension ×12","Hammer curls ×12","Triceps bench dips ×10","Dumbbell lateral raises ×12","Plank shoulder taps ×20"];
+const ABS  = ["Abs – 3 rounds, 30s rest:","Dead bug ×10 each side","Reverse crunch ×12","Bicycle crunch ×20","Plank 30–45s","Leg raises ×10"];
 const DEFAULT_PLAN = {
-  subtitle: "Fat loss + stronger legs · 10:00–11:15",
+  ver: PLAN_VERSION,
+  subtitle: "Tone up · push-ups · pull-ups",
   workouts: [
-    {id:"w2", day:2, name:"Legs + core", sub:"Strength A", items:["Goblet squat","Romanian deadlift (dumbbells)","Walking lunges","Hip thrust or glute bridge","Leg curl machine","Calf raises","Plank"], note:"3 sets × 10–12 reps, 60–90s rest. Add weight once 12 reps feels easy.", fin:"Finish: 15 min StairMaster, steady pace"},
-    {id:"w3", day:3, name:"StairMaster + core", sub:"Cardio", items:["20 min StairMaster: 2 min steady, 1 min faster, repeat","10 min incline treadmill walk","Dead bug","Bicycle crunch","Side plank"], note:"Core: 3 rounds. Don't lean on the rails – it takes the work off your legs.", fin:"Hard enough that talking is a bit of an effort"},
-    {id:"w5", day:5, name:"Full body", sub:"Strength B", items:["Leg press","Dumbbell step-ups","Lat pulldown","Dumbbell chest press","Dumbbell shoulder press","Triceps pushdown","Bicep curls"], note:"3 sets × 10–12 reps", fin:"Finish: 10–15 min StairMaster intervals (1 min fast / 1 min easy)"},
-    {id:"w0", day:0, name:"Cardio", sub:"Optional", items:["20 min easy StairMaster, or 30–40 min brisk walk, swim or cycle","Stretch legs 5–10 min: quads, hamstrings, hips"], note:"Easy pace – recovery day", fin:"Skip it if your legs are sore — still a good week"}
+    {id:"lA", day:2, name:"Lower body A", sub:"Strength · Legs + abs",
+      items:["Squat 3×10–12","Romanian deadlift 3×10–12","Walking lunges 3×10 each leg","Hip thrust 3×12", ...ABS],
+      note:"Rest 60–90s. Add weight once 12 reps feels easy.", fin:"15 min StairMaster, steady"},
+    {id:"uA", day:3, name:"Upper body A", sub:"Push-ups + pull-ups + arms",
+      items:["Push-up progression 3×max (incline → knee → negatives → full)","Dead hang 3×20–30s","Assisted pull-up machine 3×8","Dumbbell shoulder press 3×10","Seated cable row 3×10", ...ARMS],
+      note:"Move up a push-up level once you hit 3×12.", fin:"10 min core: plank, dead bug, bicycle crunch"},
+    {id:"lB", day:5, name:"Lower body B", sub:"Strength · Legs + abs",
+      items:["Leg press 3×12","Dumbbell step-ups 3×10 each leg","Leg curl 3×12","Calf raises 3×15", ...ABS],
+      note:"Rest 60–90s", fin:"15 min StairMaster intervals (1 min fast / 1 min easy)"},
+    {id:"uB", day:0, name:"Upper body B", sub:"Push-ups + pull-ups + arms",
+      items:["Push-up progression 3×max","Pull-up negatives 3×3–5 (lower over 5s)","Lat pulldown 3×10","Dumbbell chest press 3×10","Bicep curls 3×12","Triceps pushdown 3×12", ...ARMS],
+      note:"Rest 60s", fin:"15 min StairMaster, steady"},
+    {id:"hC", day:1, name:"Holiday cardio", sub:"19 Dec – 31 Jan · optional",
+      items:["30 min StairMaster or incline walk","Plank 3×30s","Dead bug 3×10","Side plank 3×20s each side"],
+      note:"Easy–moderate pace", fin:"Stretch 5 min"},
+    {id:"aa", day:null, name:"Arms + abs", sub:"Holidays · optional extra day",
+      items:["Push-up progression 3×max","Dumbbell bicep curls 3×12","Overhead triceps extension 3×12","Hammer curls 3×12","Lateral raises 3×12","Hanging knee raises 3×8–10","Ab wheel or plank walkouts 3×8","Russian twists 3×20","Side plank 3×20s each side"],
+      note:"Rest 45–60s", fin:"15 min StairMaster"},
+    {id:"fA", day:null, name:"Full body A", sub:"Feb onwards · 3 days",
+      items:["Squat 3×10","Push-up progression 3×max","Assisted pull-ups 3×8","Romanian deadlift 3×10","Plank 3×30–45s"],
+      note:"Alternate A/B/A, then B/A/B", fin:"10–15 min StairMaster"},
+    {id:"fB", day:null, name:"Full body B", sub:"Feb onwards · 3 days",
+      items:["Leg press 3×12","Dumbbell chest press 3×10","Lat pulldown 3×10","Hip thrust 3×12","Dead bug 3×10"],
+      note:"Alternate A/B/A, then B/A/B", fin:"10–15 min StairMaster"}
   ],
-  tipsTitle: "Arms, belly, face & thighs",
+  tipsTitle: "Food & goals",
   tips: [
-    "You can't burn fat from one spot. Arms, belly, face and thighs slim down as your overall body fat drops.",
-    "Leg weights + StairMaster build firm muscle in your thighs and glutes while the fat comes off, so legs end up slimmer and stronger, not bulky.",
-    "Squats, lunges and step-ups: keep your knees in line with your toes and push through your heels.",
-    "The arm and shoulder work tones the muscle underneath, so arms look firmer as fat comes off.",
-    "Food matters more than the gym: protein and veg every meal, fewer sugary drinks, snacks and takeaways.",
-    "Plenty of water and less salty food reduces face puffiness quickly.",
-    "8,000–10,000 steps a day. Walking to the station counts.",
-    "Sleep 7–9 hours. Poor sleep makes cravings worse.",
-    "Weigh or measure your waist once a week, same day and time."
+    "Goal: ~50–51kg by birthday, 48–50kg + strong by August",
+    "Calories: ~1,500 a day, never below 1,400 on gym days",
+    "Protein: 90–110g a day – protein at every meal",
+    "Plate: ½ veg, ¼ protein, ¼ carbs",
+    "No sugary drinks or juice",
+    "2+ litres of water a day",
+    "8,000–10,000 steps a day",
+    "Lose 0.25–0.5kg a week – slower keeps muscle",
+    "Arm and ab exercises firm the muscle; the fat comes off from calories + steps",
+    "Arms: go up 1kg when 12 reps is easy. Abs: +5–10s or +2 reps each week",
+    "Ramadan (~8 Feb): aim to maintain, high-protein suhoor and iftar",
+    "Always hungry, tired or periods change? Eat 200 kcal more and see a GP"
   ]
 };
 
@@ -400,6 +443,7 @@ let food    = load("gymFood", {goal:null, log:{}});
 let weights = load("gymWeight", []);
 let types   = load("gymTypes", null);
 let breaks  = load("gymBreaks", null);
+let ex      = load("gymEx", {});
 
 if (!Array.isArray(events)) events = DEFAULT_WEEK.map((e, i) => ({id:"d"+i, repeat:"weekly", day:e[0], type:e[1], start:e[2], end:e[3], title:e[4], note:e[5]}));
 { // older versions: rename the original gym sessions if untouched
@@ -408,7 +452,20 @@ if (!Array.isArray(events)) events = DEFAULT_WEEK.map((e, i) => ({id:"d"+i, repe
                "d10":["Gym · Strength B","Gym · Full body","Strength + StairMaster"]};
   events.forEach(e => { const u = upd[e.id]; if (u && e.title === u[0]) { e.title = u[1]; e.note = u[2]; } });
 }
-if (!plan || !Array.isArray(plan.workouts)) plan = JSON.parse(JSON.stringify(DEFAULT_PLAN));
+if (!plan || !Array.isArray(plan.workouts) || (plan.ver || 1) < PLAN_VERSION) plan = JSON.parse(JSON.stringify(DEFAULT_PLAN));
+if (!ex || typeof ex !== "object") ex = {};
+{ // rename the original gym sessions to the new plan (only if you haven't renamed them)
+  const upd2 = {d3:[["Gym · Legs + core","Gym · Strength A"],"Gym · Lower body A","Legs + abs + StairMaster"],
+                d5:[["Gym · StairMaster + core","Gym · Cardio + core"],"Gym · Upper body A","Push/pull-ups + arms"],
+                d10:[["Gym · Full body","Gym · Strength B"],"Gym · Lower body B","Legs + abs + StairMaster"],
+                d13:[["Gym · Cardio"],"Gym · Upper body B","Push/pull-ups + arms"]};
+  events.forEach(e => { const u = upd2[e.id]; if (u && u[0].includes(e.title)) { e.title = u[1]; e.note = u[2]; } });
+  if (!load("gymHolSeed", false)) {
+    if (!events.some(e => e.id === "h1"))
+      events.push({id:"h1", repeat:"weekly", day:1, type:"gym", start:"10:00", end:"11:00", title:"Gym · Holiday cardio", note:"Optional", from:"2026-12-21", until:"2027-01-31"});
+    store("gymHolSeed", true);
+  }
+}
 if (!Array.isArray(tabs)) tabs = ["today","week","track","plan","food","weight"].map((id, i) => ({id, on: i < 4}));
 Object.keys(BUILTIN).forEach(id => { if (!tabs.some(t => t.id === id)) tabs.push({id, on:false}); });
 tabs = tabs.filter(t => BUILTIN[t.id] || customs[t.id]);
@@ -423,7 +480,7 @@ if (!Array.isArray(breaks)) breaks = [{id:"b1", name:"Uni Christmas break", from
 function saveAll(){
   store("gymDone", done); store("gymEvents", events); store("gymSkips", skips); store("gymPlan", plan);
   store("gymTabs", tabs); store("gymCustom", customs); store("gymFood", food); store("gymWeight", weights);
-  store("gymTypes", types); store("gymBreaks", breaks);
+  store("gymTypes", types); store("gymBreaks", breaks); store("gymEx", ex);
 }
 saveAll();
 
@@ -462,6 +519,9 @@ const weeklyOn = dow => events.filter(e => e.repeat === "weekly" && e.day === do
 const inRange = d => d >= START && d <= END;
 const isGym = d => inRange(d) && eventsOn(d).some(e => e.type === "gym");
 const workoutFor = dow => plan.workouts.find(w => w.day === dow);
+const workoutForDate = k => { const e = ex[k]; return (e && e.w && plan.workouts.find(w => w.id === e.w)) || workoutFor(parseKey(k).getDay()); };
+const exItems = w => [...w.items, ...(w.fin ? ["Finisher: " + w.fin] : [])];
+const isHeader = t => /:\s*$/.test(t);
 
 function gymDaysBetween(a, b){ const out=[]; for(let d=new Date(a); d<=b; d.setDate(d.getDate()+1)) if(isGym(d)) out.push(new Date(d)); return out; }
 function stats(){
@@ -500,6 +560,55 @@ function bindEvents(container){
   });
 }
 
+// ================= Workout checklist =================
+function workoutCard(k, elId){
+  const el = $(elId), d = parseKey(k), t = today();
+  const has = isGym(d) || (ex[k] && ex[k].w);
+  if (!has) { el.innerHTML = ""; return; }
+  const w = workoutForDate(k);
+  if (!w) {
+    el.innerHTML = `<h2>Workout</h2><button class="addline" id="${elId}Pick">Choose a workout for this day</button>`;
+    $(elId + "Pick").onclick = () => pickWorkout(k);
+    return;
+  }
+  const items = exItems(w), st = ex[k] && ex[k].w === w.id ? ex[k] : {w: w.id, done: []};
+  const doneSet = new Set(st.done || []);
+  const countable = items.map((x, i) => i).filter(i => !isHeader(items[i]));
+  const n = countable.filter(i => doneSet.has(i)).length, canTick = d <= t;
+  el.innerHTML = `<div class="dayhead"><h2>Workout · ${esc(w.name)}</h2><button class="pill sm" id="${elId}Sw">Switch</button></div>
+    <div class="w wk">
+      <div class="prog"><span>${n} of ${countable.length} done</span><span>${canTick ? (n === countable.length ? "All done 🎉" : "") : "Tick on the day"}</span></div>
+      <div class="pbar"><div style="width:${countable.length ? n / countable.length * 100 : 0}%"></div></div>
+      ${items.map((x, i) => isHeader(x) ? `<div class="exh">${esc(x.replace(/:\s*$/, ""))}</div>`
+        : `<div class="chk ${doneSet.has(i) ? "done" : ""} ${canTick ? "" : "fut"}" data-i="${i}">
+            <button class="box" style="background:${doneSet.has(i) ? "var(--gym)" : "#f2f2f6"}">${doneSet.has(i) ? "✓" : ""}</button>
+            <div class="txt">${esc(x)}</div></div>`).join("")}
+      ${w.note ? `<div class="hint">${esc(w.note)}</div>` : ""}
+    </div>`;
+  $(elId + "Sw").onclick = () => pickWorkout(k);
+  if (!canTick) return;
+  el.querySelectorAll(".chk").forEach(row => row.onclick = () => {
+    const i = +row.dataset.i;
+    const cur = ex[k] && ex[k].w === w.id ? ex[k] : (ex[k] = {w: w.id, done: []});
+    cur.done = cur.done.includes(i) ? cur.done.filter(x => x !== i) : [...cur.done, i];
+    const allDone = countable.every(j => cur.done.includes(j));
+    if (allDone && isGym(d)) done[k] = true;
+    saveAll(); renderAll();
+    if (navigator.vibrate) navigator.vibrate(8);
+  });
+}
+function pickWorkout(k){
+  const curW = workoutForDate(k);
+  sheet2(`<h3>Workout for ${shortDate(parseKey(k))}</h3>
+    <div class="pick">${plan.workouts.map(w => `<button data-w="${w.id}" class="${curW && curW.id === w.id ? "on" : ""}">${esc(w.name)}<span>${esc(w.sub || "")}</span></button>`).join("")}</div>
+    <div class="actions">${ex[k] && ex[k].w ? `<button class="btn ghost" id="pkReset">Use the usual one</button>` : ""}<button class="btn ghost" data-close>Cancel</button></div>`);
+  $("sheet2").querySelectorAll("[data-w]").forEach(b => b.onclick = () => {
+    if (!(ex[k] && ex[k].w === b.dataset.w)) ex[k] = {w: b.dataset.w, done: []};
+    saveAll(); close2(); renderAll();
+  });
+  if ($("pkReset")) $("pkReset").onclick = () => { delete ex[k]; saveAll(); close2(); renderAll(); };
+}
+
 // ================= Today =================
 function renderToday(){
   const t = today(), dow = t.getDay(), k = key(t);
@@ -509,7 +618,7 @@ function renderToday(){
   const hero = $("hero");
   if (isGym(t)) {
     const g = eventsOn(t).find(e => e.type === "gym");
-    const w = workoutFor(dow), d = !!done[k];
+    const w = workoutForDate(k), d = !!done[k];
     hero.className = "hero";
     hero.innerHTML = `<button class="big ${d?"done":""}" id="bigBtn" aria-label="Mark done">${d?"✓":"○"}</button>
       <div><div class="t">${d ? "Nice work! 💪" : esc(w ? w.name : g.title) + (g.start ? " · " + fmt(g.start) : "")}</div>
@@ -525,6 +634,7 @@ function renderToday(){
   }
   const s = stats();
   $("sDone").textContent = s.done; $("sStreak").textContent = s.streak; $("sRate").textContent = s.rate + "%";
+  workoutCard(k, "todayWorkout");
   // food summary when the Food tab is on
   if (tabs.some(x => x.id === "food" && x.on) && food.goal) {
     const eaten = dayTotal(k).kcal, left = food.goal - eaten;
@@ -604,6 +714,7 @@ function renderCal(){
     + `<button class="addline" id="addSel">+ Add to this day</button>`;
   bindEvents($("selList"));
   $("addSel").onclick = () => openSheet({dateKey: selKey});
+  workoutCard(selKey, "selWorkout");
   const s = stats();
   $("yDone").textContent = s.done; $("yPlanned").textContent = s.planned; $("yTotal").textContent = s.total;
 }
@@ -626,7 +737,7 @@ function renderPlan(){
       <div class="top"><b><span class="tag" style="background:${cols[i % cols.length]}"></span>${w.day !== null && w.day !== undefined ? DAY_NAMES[w.day] + " · " : ""}${esc(w.name)}</b>
         <button class="pill sm" data-edit="${w.id}">Edit</button></div>
       ${w.sub ? `<div class="meta" style="font-size:13px;color:var(--muted);margin-top:2px">${esc(w.sub)}</div>` : ""}
-      ${w.items.length ? `<ul>${w.items.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+      ${w.items.length ? `<ul>${w.items.map(x => isHeader(x) ? `<li style="list-style:none;margin:8px 0 2px -18px;font-weight:700;color:var(--gym-ink)">${esc(x.replace(/:\s*$/, ""))}</li>` : `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
       ${w.note ? `<div class="hint" style="margin-top:6px">${esc(w.note)}</div>` : ""}
       ${w.fin ? `<div class="fin">${esc(w.fin)}</div>` : ""}</div>`).join("") || `<div class="empty">No workouts yet.</div>`;
   $("workouts").querySelectorAll("[data-edit]").forEach(b => b.onclick = () => editWorkout(plan.workouts.find(w => w.id === b.dataset.edit)));
@@ -973,7 +1084,7 @@ function editBreak(b){
 
 // ================= Backup =================
 async function backup(){
-  const data = JSON.stringify({app:"gym", version:4, done, events, skips, plan, tabs, customs, food, weights, types, breaks});
+  const data = JSON.stringify({app:"gym", version:4, done, events, skips, plan, tabs, customs, food, weights, types, breaks, ex});
   const name = `gym-backup-${key(today())}.json`;
   const file = new File([data], name, {type:"application/json"});
   try { if (navigator.canShare && navigator.canShare({files:[file]})) { await navigator.share({files:[file], title:"Gym backup"}); return; } }
@@ -990,7 +1101,7 @@ async function restore(e){
     done = d.done || {}; events = d.events; skips = d.skips || {};
     if (d.plan) plan = d.plan; if (d.tabs) tabs = d.tabs; if (d.customs) customs = d.customs;
     if (d.food) food = d.food; if (d.weights) weights = d.weights;
-    if (d.types) types = d.types; if (d.breaks) breaks = d.breaks;
+    if (d.types) types = d.types; if (d.breaks) breaks = d.breaks; if (d.ex) ex = d.ex;
     saveAll(); close2(); renderNav(); renderAll(); renderPlan(); alert("Backup restored.");
   } catch(_) { alert("That file isn't a gym backup."); }
   e.target.value = "";
