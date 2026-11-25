@@ -237,8 +237,7 @@
       <div class="stat"><b id="sStreak">0</b><span>streak</span></div>
       <div class="stat"><b id="sRate">0%</b><span>on track</span></div>
     </div>
-    <div id="todayWorkout"></div>
-    <div id="todayFood"></div>
+        <div id="todayFood"></div>
     <h2>Today</h2>
     <div id="todayList"></div>
   </section>
@@ -262,7 +261,6 @@
     <div class="bar"><div id="mBar" style="width:0"></div></div>
     <div class="dayhead"><h2 id="selTitle"></h2><span id="selGym"></span></div>
     <div id="selList"></div>
-    <div id="selWorkout"></div>
     <div class="stats" style="margin-top:22px">
       <div class="stat"><b id="yDone">0</b><span>sessions done</span></div>
       <div class="stat"><b id="yPlanned">0</b><span>planned so far</span></div>
@@ -348,7 +346,7 @@ const MAX_TABS = 5;
 
 const DEFAULT_TYPES = [
   {id:"gym", label:"Gym", color:"#2fd39a"}, {id:"uni", label:"Uni", color:"#3aa8ff"},
-  {id:"mosque", label:"Mosque", color:"#9b7bff"}, {id:"travel", label:"Travel", color:"#ffa24c"},
+  {id:"mosque", label:"Mosque", color:"#9b7bff"},
   {id:"other", label:"Other", color:"#ff5fa2"}
 ];
 const PALETTE = ["#2fd39a","#3aa8ff","#9b7bff","#ffa24c","#ff5fa2","#ff5a3c","#1ec8c8","#ffc531","#8cc63f","#b08968","#5c6bc0","#e056fd","#9a9aa8","#16161d"];
@@ -412,16 +410,12 @@ const DEFAULT_PLAN = {
 };
 
 const DEFAULT_WEEK = [
-  [1,"travel","10:45","12:00","Train to MMU","Rochdale → Manchester"],
   [1,"uni","12:00","18:00","Uni","MMU"],
-  [1,"travel","18:00","19:15","Train home","Manchester → Rochdale"],
   [2,"gym","10:00","11:15","Gym · Legs + core","Leg strength + StairMaster"],
   [2,"mosque","16:30","20:30","Mosque",""],
   [3,"gym","10:00","11:15","Gym · StairMaster + core","Intervals + core"],
   [3,"mosque","16:30","20:00","Mosque",""],
-  [4,"travel","07:45","09:00","Train to MMU","Rochdale → Manchester"],
   [4,"uni","09:00","13:30","Uni","MMU"],
-  [4,"travel","13:30","14:45","Train home","Manchester → Rochdale"],
   [5,"gym","10:00","11:15","Gym · Full body","Strength + StairMaster"],
   [5,"mosque","18:30","20:00","Mosque",""],
   [6,"mosque","09:30","14:00","Mosque",""],
@@ -474,8 +468,14 @@ food.log = food.log || {};
 if (!Array.isArray(weights)) weights = [];
 if (!Array.isArray(types)) types = JSON.parse(JSON.stringify(DEFAULT_TYPES));
 if (!types.some(t => t.id === "gym")) types.unshift({...DEFAULT_TYPES[0]});
-if (!types.some(t => t.id === "other")) types.push({...DEFAULT_TYPES[4]});
-if (!Array.isArray(breaks)) breaks = [{id:"b1", name:"Uni Christmas break", from:"2026-12-19", to:"2027-01-31", types:["uni","travel"]}];
+if (!types.some(t => t.id === "other")) types.push({...DEFAULT_TYPES.find(t => t.id === "other")});
+if (!load("gymNoTravel", false)) {
+  events = events.filter(e => e.type !== "travel");
+  if (Array.isArray(types)) types = types.filter(t => t.id !== "travel");
+  if (Array.isArray(breaks)) breaks.forEach(b => b.types = b.types.filter(x => x !== "travel"));
+  store("gymNoTravel", true);
+}
+if (!Array.isArray(breaks)) breaks = [{id:"b1", name:"Uni Christmas break", from:"2026-12-19", to:"2027-01-31", types:["uni"]}];
 
 function saveAll(){
   store("gymDone", done); store("gymEvents", events); store("gymSkips", skips); store("gymPlan", plan);
@@ -497,7 +497,7 @@ const fmt = t => { if(!t) return ""; let [h,m] = t.split(":").map(Number); const
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 const shortDate = d => `${DAY_NAMES[d.getDay()].slice(0,3)} ${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`;
 const num = n => Math.round(n).toLocaleString("en-GB");
-const typeOf = id => types.find(t => t.id === id) || types.find(t => t.id === "other") || DEFAULT_TYPES[4];
+const typeOf = id => types.find(t => t.id === id) || types.find(t => t.id === "other") || DEFAULT_TYPES.find(t => t.id === "other");
 function hexMix(hex, target, amt){ const h = hex.replace("#",""); const c = [0,2,4].map(i => parseInt(h.substr(i,2),16));
   return "#" + c.map(v => Math.round(v + (target - v) * amt).toString(16).padStart(2,"0")).join(""); }
 const softOf = hex => hexMix(hex, 255, .84);
@@ -556,7 +556,10 @@ function eventHTML(e, dateKey){
 function bindEvents(container){
   container.querySelectorAll(".ev").forEach(el => el.onclick = () => {
     const e = events.find(x => x.id === el.dataset.id);
-    if (e) openSheet({ev:e, dateKey: el.dataset.date || null});
+    if (!e) return;
+    const dk = el.dataset.date || null;
+    if (dk && e.type === "gym") openWorkout(dk, e);
+    else openSheet({ev:e, dateKey: dk});
   });
 }
 
@@ -568,7 +571,7 @@ function workoutCard(k, elId){
   const w = workoutForDate(k);
   if (!w) {
     el.innerHTML = `<h2>Workout</h2><button class="addline" id="${elId}Pick">Choose a workout for this day</button>`;
-    $(elId + "Pick").onclick = () => pickWorkout(k);
+    $(elId + "Pick").onclick = () => pickWorkout(k, elId === "wkPop");
     return;
   }
   const items = exItems(w), st = ex[k] && ex[k].w === w.id ? ex[k] : {w: w.id, done: []};
@@ -585,7 +588,7 @@ function workoutCard(k, elId){
             <div class="txt">${esc(x)}</div></div>`).join("")}
       ${w.note ? `<div class="hint">${esc(w.note)}</div>` : ""}
     </div>`;
-  $(elId + "Sw").onclick = () => pickWorkout(k);
+  $(elId + "Sw").onclick = () => pickWorkout(k, elId === "wkPop");
   if (!canTick) return;
   el.querySelectorAll(".chk").forEach(row => row.onclick = () => {
     const i = +row.dataset.i;
@@ -593,20 +596,27 @@ function workoutCard(k, elId){
     cur.done = cur.done.includes(i) ? cur.done.filter(x => x !== i) : [...cur.done, i];
     const allDone = countable.every(j => cur.done.includes(j));
     if (allDone && isGym(d)) done[k] = true;
-    saveAll(); renderAll();
+    saveAll(); renderAll(); workoutCard(k, elId);
     if (navigator.vibrate) navigator.vibrate(8);
   });
 }
-function pickWorkout(k){
+function openWorkout(k, ev){
+  const d = parseKey(k);
+  sheet2(`<h3 style="margin-bottom:2px">${DAY_NAMES[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}</h3><div id="wkPop"></div>
+    <div class="actions">${ev ? `<button class="btn ghost" id="wkEdit">Edit event</button>` : ""}<button class="btn primary" data-close>Done</button></div>`);
+  workoutCard(k, "wkPop");
+  if ($("wkEdit")) $("wkEdit").onclick = () => { close2(); openSheet({ev, dateKey: k}); };
+}
+function pickWorkout(k, reopen){
   const curW = workoutForDate(k);
   sheet2(`<h3>Workout for ${shortDate(parseKey(k))}</h3>
     <div class="pick">${plan.workouts.map(w => `<button data-w="${w.id}" class="${curW && curW.id === w.id ? "on" : ""}">${esc(w.name)}<span>${esc(w.sub || "")}</span></button>`).join("")}</div>
     <div class="actions">${ex[k] && ex[k].w ? `<button class="btn ghost" id="pkReset">Use the usual one</button>` : ""}<button class="btn ghost" data-close>Cancel</button></div>`);
   $("sheet2").querySelectorAll("[data-w]").forEach(b => b.onclick = () => {
     if (!(ex[k] && ex[k].w === b.dataset.w)) ex[k] = {w: b.dataset.w, done: []};
-    saveAll(); close2(); renderAll();
+    saveAll(); renderAll(); reopen ? openWorkout(k, eventsOn(parseKey(k)).find(e => e.type === "gym")) : close2();
   });
-  if ($("pkReset")) $("pkReset").onclick = () => { delete ex[k]; saveAll(); close2(); renderAll(); };
+  if ($("pkReset")) $("pkReset").onclick = () => { delete ex[k]; saveAll(); renderAll(); reopen ? openWorkout(k, eventsOn(parseKey(k)).find(e => e.type === "gym")) : close2(); };
 }
 
 // ================= Today =================
@@ -622,19 +632,22 @@ function renderToday(){
     hero.className = "hero";
     hero.innerHTML = `<button class="big ${d?"done":""}" id="bigBtn" aria-label="Mark done">${d?"✓":"○"}</button>
       <div><div class="t">${d ? "Nice work! 💪" : esc(w ? w.name : g.title) + (g.start ? " · " + fmt(g.start) : "")}</div>
-      <div class="d">${d ? "Session logged" : "Tap the circle when you're done"}</div></div>`;
-    $("bigBtn").onclick = () => toggle(k);
+      <div class="d">${d ? "Session logged · tap to see exercises" : "Tap here to see your exercises"}</div></div>`;
+    $("bigBtn").onclick = e => { e.stopPropagation(); toggle(k); };
+    hero.style.cursor = "pointer";
+    hero.onclick = () => openWorkout(k, g);
   } else if (t < START) {
+    hero.onclick = null; hero.style.cursor = "";
     hero.className = "hero";
     hero.innerHTML = `<div class="big">→</div><div><div class="t">Starts ${START.getDate()} ${MONTHS[START.getMonth()]}</div><div class="d">First session ${DAY_NAMES[START.getDay()]}, 10am</div></div>`;
   } else {
+    hero.onclick = null; hero.style.cursor = "";
     hero.className = "hero rest";
     const next = nextGym();
     hero.innerHTML = `<div class="big" style="color:var(--muted);box-shadow:none">☾</div><div><div class="t">Rest day</div><div class="d">${next ? "Next gym: " + shortDate(next) : ""}</div></div>`;
   }
   const s = stats();
   $("sDone").textContent = s.done; $("sStreak").textContent = s.streak; $("sRate").textContent = s.rate + "%";
-  workoutCard(k, "todayWorkout");
   // food summary when the Food tab is on
   if (tabs.some(x => x.id === "food" && x.on) && food.goal) {
     const eaten = dayTotal(k).kcal, left = food.goal - eaten;
@@ -714,7 +727,7 @@ function renderCal(){
     + `<button class="addline" id="addSel">+ Add to this day</button>`;
   bindEvents($("selList"));
   $("addSel").onclick = () => openSheet({dateKey: selKey});
-  workoutCard(selKey, "selWorkout");
+
   const s = stats();
   $("yDone").textContent = s.done; $("yPlanned").textContent = s.planned; $("yTotal").textContent = s.total;
 }
